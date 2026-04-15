@@ -8,43 +8,33 @@
     <style>
         :root { --gold: #c9a050; --bg: #0f1115; --card-bg: #1a1d23; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; min-height: 100vh; display: flex; flex-direction: column; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; }
 
-        /* العنوان الرئيسي - عريض ومتصل */
-        .main-title { font-size: 35px; font-weight: 900; color: var(--gold); margin-top: 50px; text-align: center; letter-spacing: 0; }
+        .main-title { font-size: 35px; font-weight: 900; color: var(--gold); margin-top: 50px; text-align: center; }
         .divider { width: 60px; height: 3px; background: var(--gold); margin: 15px auto; border-radius: 10px; }
 
-        /* زر نسخ الرمز - أسود ملكي */
-        .btn-copy { 
-            background: #000; color: var(--gold); border: 1px solid var(--gold); 
-            padding: 12px 30px; border-radius: 50px; font-weight: bold; 
-            cursor: pointer; margin-top: 15px; font-size: 16px;
-        }
+        .btn-copy { background: #000; color: var(--gold); border: 1px solid var(--gold); padding: 12px 30px; border-radius: 50px; font-weight: bold; cursor: pointer; margin-top: 15px; }
 
-        /* الهيدر العلوي */
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
-        .contact-btn {
-            background: rgba(255, 255, 255, 0.05); border: 1px solid #333;
-            padding: 8px 15px; border-radius: 12px; display: flex; align-items: center;
-            text-decoration: none; color: #fff; font-size: 13px;
-        }
+        .contact-btn { background: rgba(255, 255, 255, 0.05); border: 1px solid #333; padding: 8px 15px; border-radius: 12px; display: flex; align-items: center; text-decoration: none; color: #fff; font-size: 13px; }
         .online-dot { width: 8px; height: 8px; background: #4caf50; border-radius: 50%; margin-left: 8px; box-shadow: 0 0 8px #4caf50; }
-        .contact-user { color: var(--gold); font-weight: bold; margin-right: 5px; }
 
-        /* شبكة المعرض السريعة */
-        .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; flex-grow: 1; }
-        .card { background: var(--card-bg); border-radius: 20px; overflow: hidden; border: 1px solid #222; position: relative; height: fit-content; }
-        .media-box { width: 100%; height: 190px; background: #000; overflow: hidden; }
+        /* تنسيق الشبكة مثل الصورة */
+        .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+        .card { background: var(--card-bg); border-radius: 15px; overflow: hidden; position: relative; cursor: pointer; border: 1px solid #222; }
+        .media-box { width: 100%; height: 220px; background: #000; }
         .media-box img, .media-box video { width: 100%; height: 100%; object-fit: cover; }
-        .card-label { padding: 12px; font-size: 13px; font-weight: bold; text-align: right; background: #16191f; }
+        
+        /* النص فوق الصورة */
+        .card-info { position: absolute; bottom: 0; right: 0; left: 0; padding: 15px 10px; background: linear-gradient(transparent, rgba(0,0,0,0.9)); }
+        .card-title { font-size: 12px; font-weight: bold; color: #fff; margin-bottom: 5px; text-align: right; }
 
-        /* الفوتر - الحقوق */
-        .footer {
-            text-align: center; padding: 30px 10px; margin-top: 40px;
-            border-top: 1px solid rgba(255,255,255,0.05); color: #666; font-size: 12px;
-        }
-        .footer a { color: var(--gold); text-decoration: none; font-weight: bold; }
+        /* النافذة المنبثقة للعرض المباشر */
+        #viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: none; align-items: center; justify-content: center; }
+        #viewer img, #viewer video { max-width: 100%; max-height: 100%; }
+        .close-viewer { position: absolute; top: 20px; right: 20px; background: rgba(255,255,255,0.2); color: #fff; border: none; padding: 10px 20px; border-radius: 10px; font-weight: bold; cursor: pointer; }
 
+        .footer { text-align: center; padding: 30px; color: #555; font-size: 12px; }
         .hidden { display: none; }
         #lock-screen { text-align: center; padding-top: 60px; }
         .input-vip { width: 90%; padding: 16px; border-radius: 15px; border: 1px solid #333; background:#1e222a; color:#fff; text-align:center; font-size:18px; margin-bottom: 20px; outline: none; }
@@ -56,13 +46,11 @@
     <div id="lock-screen">
         <div class="main-title">عينات حسو</div>
         <div class="divider"></div>
-        <p style="color: #888;">ادخل الرمز الملكي</p>
-        
+        <p style="color: #888;">ادخل الرمز</p>
         <div style="background:rgba(255,255,255,0.02); padding:35px 20px; border-radius:30px; margin:30px 0; border: 1px solid rgba(201,160,80,0.1);">
-            <div id="targetCode" style="font-size:38px; font-weight:900; letter-spacing:5px; color:#fff;">1234</div>
+            <div id="targetCode" style="font-size:38px; font-weight:900; color:#fff;">1234</div>
             <button class="btn-copy" onclick="copyCode()">نسخ الرمز</button>
         </div>
-
         <input type="number" id="passInput" class="input-vip" placeholder="ادخل الرمز">
         <button class="btn-enter" onclick="checkPass()">الدخول</button>
     </div>
@@ -71,18 +59,18 @@
         <div class="top-header">
             <a href="https://t.me/xxnnn8" class="contact-btn">
                 <span class="online-dot"></span>
-                <span>تواصل معنا</span>
-                <span class="contact-user">@xxnnn8</span>
+                <span style="color:var(--gold); font-weight:bold;">xxnnn8 @</span>
+                <span style="margin-right:5px">تواصل معنا</span>
             </a>
-            <div style="font-weight: bold; font-size: 18px;">الألبومات 📂</div>
+            <div style="font-weight: bold; font-size: 18px;">📂 الألبومات</div>
         </div>
-
         <div id="items-list" class="gallery"></div>
+        <div class="footer">جميع الحقوق محفوظة لدى حسو <br> @xxnnn8</div>
+    </div>
 
-        <div class="footer">
-            جميع الحقوق محفوظة لدى <span style="color:var(--gold)">حسو</span><br>
-            <a href="https://t.me/xxnnn8">@xxnnn8</a>
-        </div>
+    <div id="viewer">
+        <button class="close-viewer" onclick="closeViewer()">إغلاق</button>
+        <div id="viewer-content" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center;"></div>
     </div>
 
     <script>
@@ -102,37 +90,52 @@
                     const cols = row.split(',');
                     if(cols[1] && cols[1].trim()) {
                         const url = cols[1].trim();
+                        const title = cols[2] || 'ألبوم جديد';
                         const isVid = url.toLowerCase().endsWith('.mp4');
                         list.innerHTML += `
-                            <div class="card" onclick="window.open('${url}')">
+                            <div class="card" onclick="openViewer('${url}', ${isVid})">
                                 <div class="media-box">
-                                    ${isVid ? `<video muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()"><source src="${url}" type="video/mp4"></video>` : `<img src="${url}" loading="lazy">`}
+                                    ${isVid ? `<video muted loop playsinline><source src="${url}" type="video/mp4"></video>` : `<img src="${url}" loading="lazy">`}
                                 </div>
-                                <div class="card-label">${cols[2] || 'ألبوم جديد'}</div>
+                                <div class="card-info">
+                                    <div class="card-title">${title}</div>
+                                    <div style="font-size:10px; opacity:0.7;">🖼️ عرض مباشر</div>
+                                </div>
                             </div>`;
                     }
                 });
             } catch (e) { console.error("Load Error"); }
         }
 
+        function openViewer(url, isVid) {
+            const container = document.getElementById('viewer-content');
+            container.innerHTML = isVid 
+                ? `<video controls autoplay style="width:100%"><source src="${url}" type="video/mp4"></video>` 
+                : `<img src="${url}">`;
+            document.getElementById('viewer').style.display = 'flex';
+            window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+        }
+
+        function closeViewer() {
+            document.getElementById('viewer').style.display = 'none';
+            document.getElementById('viewer-content').innerHTML = '';
+        }
+
         function checkPass() {
             if(document.getElementById('passInput').value === correctPass) {
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('content').classList.remove('hidden');
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
-                window.scrollTo(0, 0);
-            } else { alert("الرمز غير صحيح"); }
+                window.Telegram.WebApp.expand();
+            } else { alert("الرمز خطأ"); }
         }
 
         function copyCode() {
             navigator.clipboard.writeText(document.getElementById('targetCode').innerText);
-            window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-            alert("تم نسخ الرمز الملكي");
+            alert("تم نسخ الرمز");
         }
 
         init();
         window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
     </script>
 </body>
 </html>
