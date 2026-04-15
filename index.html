@@ -7,64 +7,64 @@
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
         :root { --gold: #c9a050; --bg: #0f1115; --card-bg: #1a1d23; }
-        body { 
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
-            background: var(--bg); color: #fff; margin: 0; padding: 15px; 
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: var(--bg); color: #fff; margin: 0; padding: 15px; min-height: 100vh; display: flex; flex-direction: column; }
+
+        /* العنوان الرئيسي - عريض ومتصل */
+        .main-title { font-size: 35px; font-weight: 900; color: var(--gold); margin-top: 50px; text-align: center; letter-spacing: 0; }
+        .divider { width: 60px; height: 3px; background: var(--gold); margin: 15px auto; border-radius: 10px; }
+
+        /* زر نسخ الرمز - أسود ملكي */
+        .btn-copy { 
+            background: #000; color: var(--gold); border: 1px solid var(--gold); 
+            padding: 12px 30px; border-radius: 50px; font-weight: bold; 
+            cursor: pointer; margin-top: 15px; font-size: 16px;
         }
 
-        /* الهيدر العلوي مثل الصورة */
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 5px; }
+        /* الهيدر العلوي */
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px; }
         .contact-btn {
             background: rgba(255, 255, 255, 0.05); border: 1px solid #333;
             padding: 8px 15px; border-radius: 12px; display: flex; align-items: center;
             text-decoration: none; color: #fff; font-size: 13px;
         }
-        .online-dot { width: 8px; height: 8px; background: #4caf50; border-radius: 50%; margin-left: 8px; box-shadow: 0 0 5px #4caf50; }
+        .online-dot { width: 8px; height: 8px; background: #4caf50; border-radius: 50%; margin-left: 8px; box-shadow: 0 0 8px #4caf50; }
         .contact-user { color: var(--gold); font-weight: bold; margin-right: 5px; }
 
-        .album-title { font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+        /* شبكة المعرض السريعة */
+        .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 10px; flex-grow: 1; }
+        .card { background: var(--card-bg); border-radius: 20px; overflow: hidden; border: 1px solid #222; position: relative; height: fit-content; }
+        .media-box { width: 100%; height: 190px; background: #000; overflow: hidden; }
+        .media-box img, .media-box video { width: 100%; height: 100%; object-fit: cover; }
+        .card-label { padding: 12px; font-size: 13px; font-weight: bold; text-align: right; background: #16191f; }
 
-        /* شريط البحث */
-        .search-container {
-            background: #1e222a; border-radius: 15px; padding: 12px 15px;
-            display: flex; align-items: center; margin-bottom: 20px; border: 1px solid #2a2e37;
+        /* الفوتر - الحقوق */
+        .footer {
+            text-align: center; padding: 30px 10px; margin-top: 40px;
+            border-top: 1px solid rgba(255,255,255,0.05); color: #666; font-size: 12px;
         }
-        .search-container input {
-            background: transparent; border: none; color: #fff; width: 100%; outline: none; text-align: right; font-size: 14px;
-        }
-
-        /* الفلاتر */
-        .filters-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
-        .filters-scroll::-webkit-scrollbar { display: none; }
-        .f-item {
-            background: #252932; padding: 8px 18px; border-radius: 20px;
-            font-size: 13px; white-space: nowrap; color: #aaa; border: 1px solid #333;
-        }
-        .f-item.active { background: #323741; color: #fff; border-color: #555; }
-
-        /* شبكة المعرض */
-        .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .card { background: var(--card-bg); border-radius: 20px; overflow: hidden; border: 1px solid #222; position: relative; }
-        .card img.main { width: 100%; height: 180px; object-fit: cover; display: block; }
-        .card-info { padding: 10px; font-size: 12px; background: #16191f; display: flex; justify-content: space-between; align-items: center; }
-        
-        .thumb-bar { display: flex; gap: 2px; height: 35px; background: #000; border-top: 1px solid #222; }
-        .thumb-bar img { width: 25%; height: 100%; object-fit: cover; opacity: 0.5; }
+        .footer a { color: var(--gold); text-decoration: none; font-weight: bold; }
 
         .hidden { display: none; }
-        #lock-screen { text-align: center; padding-top: 80px; }
+        #lock-screen { text-align: center; padding-top: 60px; }
+        .input-vip { width: 90%; padding: 16px; border-radius: 15px; border: 1px solid #333; background:#1e222a; color:#fff; text-align:center; font-size:18px; margin-bottom: 20px; outline: none; }
+        .btn-enter { width: 90%; padding: 18px; border-radius: 15px; border: none; background: linear-gradient(45deg, #c9a050, #f9e29b); color:#000; font-weight: 900; font-size: 18px; cursor: pointer; }
     </style>
 </head>
 <body>
 
     <div id="lock-screen">
-        <h2 style="color:var(--gold); letter-spacing: 3px;">عينات حسو</h2>
-        <div style="background:rgba(255,255,255,0.03); padding:30px; border-radius:25px; margin:30px 0; border: 1px dashed var(--gold);">
-            <div id="targetCode" style="font-size:32px; font-weight:bold; letter-spacing:8px; margin-bottom:15px;">1234</div>
-            <button onclick="copyCode()" style="background:var(--gold); border:none; padding:10px 25px; border-radius:50px; font-weight:bold; cursor:pointer;">نسخ الرمز</button>
+        <div class="main-title">عينات حسو</div>
+        <div class="divider"></div>
+        <p style="color: #888;">ادخل الرمز الملكي</p>
+        
+        <div style="background:rgba(255,255,255,0.02); padding:35px 20px; border-radius:30px; margin:30px 0; border: 1px solid rgba(201,160,80,0.1);">
+            <div id="targetCode" style="font-size:38px; font-weight:900; letter-spacing:5px; color:#fff;">1234</div>
+            <button class="btn-copy" onclick="copyCode()">نسخ الرمز</button>
         </div>
-        <input type="number" id="passInput" placeholder="أدخل الرمز هنا" style="width:90%; padding:15px; border-radius:15px; border:1px solid #333; background:#1a1d23; color:#fff; text-align:center; font-size:18px;">
-        <button onclick="checkPass()" style="width:90%; padding:15px; margin-top:20px; background:linear-gradient(45deg, #c9a050, #f9e29b); border:none; border-radius:15px; font-weight:bold; font-size:18px; color:#000;">الدخول</button>
+
+        <input type="number" id="passInput" class="input-vip" placeholder="ادخل الرمز">
+        <button class="btn-enter" onclick="checkPass()">الدخول</button>
     </div>
 
     <div id="content" class="hidden">
@@ -74,24 +74,15 @@
                 <span>تواصل معنا</span>
                 <span class="contact-user">@xxnnn8</span>
             </a>
-            <div class="album-title">الألبومات 📂</div>
+            <div style="font-weight: bold; font-size: 18px;">الألبومات 📂</div>
         </div>
 
-        <div class="search-container">
-            <input type="text" placeholder="ابحث عن ألبوم...">
-            <span style="opacity:0.5">🔍</span>
-        </div>
+        <div id="items-list" class="gallery"></div>
 
-        <div class="filters-scroll">
-            <div class="f-item active">الكل 325</div>
-            <div class="f-item">سناب 20</div>
-            <div class="f-item">مشهورات 21</div>
-            <div class="f-item">سهرات 12</div>
-            <div class="f-item">حصري 10</div>
+        <div class="footer">
+            جميع الحقوق محفوظة لدى <span style="color:var(--gold)">حسو</span><br>
+            <a href="https://t.me/xxnnn8">@xxnnn8</a>
         </div>
-
-        <div class="gallery" id="items-list">
-            </div>
     </div>
 
     <script>
@@ -110,37 +101,33 @@
                 rows.forEach(row => {
                     const cols = row.split(',');
                     if(cols[1] && cols[1].trim()) {
-                        const imgs = cols[1].split(','); 
-                        const main = imgs[0].trim();
-                        let thumbs = '';
-                        imgs.slice(1, 5).forEach(t => { thumbs += `<img src="${t.trim()}">`; });
-
+                        const url = cols[1].trim();
+                        const isVid = url.toLowerCase().endsWith('.mp4');
                         list.innerHTML += `
-                            <div class="card">
-                                <img src="${main}" class="main" loading="lazy">
-                                <div class="card-info">
-                                    <span style="opacity:0.6">🖼️ ${imgs.length}</span>
-                                    <span>${cols[2] || 'ألبوم'}</span>
+                            <div class="card" onclick="window.open('${url}')">
+                                <div class="media-box">
+                                    ${isVid ? `<video muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()"><source src="${url}" type="video/mp4"></video>` : `<img src="${url}" loading="lazy">`}
                                 </div>
-                                <div class="thumb-bar">${thumbs}</div>
+                                <div class="card-label">${cols[2] || 'ألبوم جديد'}</div>
                             </div>`;
                     }
                 });
-            } catch (e) { console.error("Error"); }
+            } catch (e) { console.error("Load Error"); }
         }
 
         function checkPass() {
             if(document.getElementById('passInput').value === correctPass) {
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('content').classList.remove('hidden');
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+                window.scrollTo(0, 0);
             } else { alert("الرمز غير صحيح"); }
         }
 
         function copyCode() {
             navigator.clipboard.writeText(document.getElementById('targetCode').innerText);
             window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-            alert("تم نسخ الرمز");
+            alert("تم نسخ الرمز الملكي");
         }
 
         init();
