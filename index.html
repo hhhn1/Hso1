@@ -3,95 +3,102 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>عينات حسو - Elite</title>
+    <title>عينات حسو - VIP</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --gold: #c9a050; --bg: #050505; }
+        :root { --gold: #c9a050; --bg: #000; }
+        * { box-sizing: border-box; }
         body { 
-            font-family: 'Segoe UI', Roboto, sans-serif;
-            background-color: var(--bg); color: #fff; margin: 0; padding: 20px;
-            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
-        }
-        
-        .container { width: 100%; max-width: 420px; text-align: center; }
-        
-        h2 { font-weight: 300; letter-spacing: 2px; color: var(--gold); margin-top: 50px; }
-        .divider { width: 50px; height: 1px; background: var(--gold); margin: 15px auto; opacity: 0.6; }
-
-        /* صندوق الرمز المخصص */
-        .copy-box {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px dashed var(--gold);
-            border-radius: 15px; padding: 20px; margin-bottom: 25px;
-            display: flex; justify-content: space-between; align-items: center;
-        }
-        .code-text { font-size: 24px; font-weight: bold; color: #fff; letter-spacing: 3px; }
-        .copy-btn {
-            background: var(--gold); color: #000; border: none; padding: 8px 15px;
-            border-radius: 8px; font-weight: bold; font-size: 12px; cursor: pointer;
+            font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff;
+            margin: 0; padding: 20px; overflow-x: hidden; min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
         }
 
-        .premium-card {
-            background: rgba(255, 255, 255, 0.02);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 25px; padding: 35px 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+        /* خلفية النجوم المتحركة */
+        #particles-js { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+
+        .content-wrapper { position: relative; z-index: 2; width: 100%; max-width: 420px; text-align: center; }
+
+        h2 { font-weight: 200; letter-spacing: 5px; color: var(--gold); margin-top: 50px; text-transform: uppercase; }
+        .divider { width: 60px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 20px auto; }
+
+        /* صندوق الرمز الاحترافي */
+        .glass-box {
+            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px);
+            border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 25px;
+            padding: 30px 20px; margin-bottom: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        }
+        .code-display { font-size: 32px; font-weight: bold; color: #fff; margin-bottom: 15px; letter-spacing: 5px; text-shadow: 0 0 10px var(--gold); }
+        .btn-copy { 
+            background: var(--gold); color: #000; border: none; padding: 10px 25px; 
+            border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.3s;
         }
 
         .input-vip {
-            background: rgba(0,0,0,0.4); border: 1px solid #333;
-            width: 90%; color: #fff; font-size: 20px; text-align: center;
-            padding: 12px; border-radius: 12px; margin-bottom: 20px; outline: none;
+            background: rgba(0,0,0,0.6); border: 1px solid #222; width: 100%;
+            padding: 15px; border-radius: 15px; color: #fff; font-size: 20px;
+            text-align: center; margin-bottom: 20px; outline: none;
         }
-        .input-vip:focus { border-color: var(--gold); }
+        .btn-enter {
+            background: linear-gradient(45deg, #8a6d3b, #c9a050, #e6be8a);
+            width: 100%; padding: 16px; border-radius: 15px; border: none;
+            color: #000; font-weight: 900; letter-spacing: 1px; cursor: pointer;
+            font-size: 18px;
+        }
 
-        .btn-elite {
-            width: 90%; background: linear-gradient(45deg, #c9a050, #f9e29b); color: #000;
-            padding: 15px; border-radius: 12px; border: none; font-weight: bold;
-            font-size: 15px; cursor: pointer; text-transform: uppercase;
+        /* معرض الصور الفخم */
+        .premium-card {
+            width: 100%; border-radius: 20px; overflow: hidden; margin-bottom: 30px;
+            background: #0a0a0a; border: 1px solid rgba(255,255,255,0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); transform: translateY(20px); opacity: 0;
+            animation: slideIn 0.6s forwards;
         }
-
-        /* المعرض */
-        .image-card {
-            width: 100%; border-radius: 18px; overflow: hidden; margin-bottom: 25px;
-            background: #111; border: 1px solid rgba(255,255,255,0.05);
-            animation: fadeIn 0.8s ease forwards;
-        }
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
-        
-        .image-card img { width: 100%; display: block; }
-        .image-info { padding: 15px; text-align: right; background: #0c0c0c; border-top: 1px solid #1a1a1a; }
-        .image-info p { margin: 0; font-size: 14px; color: #bbb; }
+        @keyframes slideIn { to { transform: translateY(0); opacity: 1; } }
+        .premium-card img { width: 100%; display: block; filter: brightness(0.85); transition: 0.5s; }
+        .premium-card:hover img { filter: brightness(1.1); }
+        .card-desc { padding: 15px; text-align: right; background: rgba(10,10,10,0.9); font-size: 14px; color: #aaa; }
 
         .hidden { display: none; }
     </style>
 </head>
 <body>
 
-    <div id="lock-screen" class="container">
+    <div id="particles-js"></div>
+
+    <div id="lock-screen" class="content-wrapper">
         <h2>عينات حسو</h2>
         <div class="divider"></div>
-        <p style="color: #666; font-size: 13px; margin-bottom: 30px;">يرجى نسخ الرمز للدخول</p>
-
-        <div class="copy-box">
-            <div class="code-text" id="targetCode">1234</div>
-            <button class="copy-btn" onclick="copyCode()">اضغط للنسخ</button>
+        
+        <div class="glass-box">
+            <div class="code-display" id="targetCode">1234</div>
+            <button class="btn-copy" onclick="copyCode()">اضغط للنسخ</button>
         </div>
 
-        <div class="premium-card">
-            <input type="number" id="passInput" class="input-vip" placeholder="أدخل الرمز هنا">
-            <button class="btn-elite" onclick="checkPass()">تأكيد الدخول</button>
-        </div>
+        <input type="number" id="passInput" class="input-vip" placeholder="أدخل الرمز الملكي">
+        <button class="btn-enter" onclick="checkPass()">الدخول</button>
     </div>
 
-    <div id="content" class="container hidden">
-        <h2>عينات حسو</h2>
-        <div class="divider" style="width: 100px;"></div>
+    <div id="content" class="content-wrapper hidden">
+        <h2>المعرض الملكي</h2>
+        <div class="divider" style="width: 150px;"></div>
         <div id="items-list"></div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
+        // برمجة النماذج المتحركة (الخلفية)
+        particlesJS("particles-js", {
+            "particles": {
+                "number": { "value": 80 },
+                "color": { "value": "#c9a050" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.5 },
+                "size": { "value": 2 },
+                "line_linked": { "enable": true, "distance": 150, "color": "#c9a050", "opacity": 0.2, "width": 1 },
+                "move": { "enable": true, "speed": 2 }
+            }
+        });
+
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4V6swf_1fE33kPaIG6nNS4lbf6Ii87Hxx9hKnR_xDvE4vpbm8SG2ZrPaGoMky5NGpAt-tkNzv7L4j/pub?output=csv";
         let correctPass = "";
 
@@ -104,14 +111,14 @@
                 document.getElementById('targetCode').innerText = correctPass;
 
                 const list = document.getElementById('items-list');
-                rows.forEach(row => {
+                rows.forEach((row, i) => {
                     const cols = row.split(',');
                     if(cols[1] && cols[1].trim().startsWith('http')) {
-                        list.innerHTML += `
-                            <div class="image-card">
-                                <img src="${cols[1].trim()}" loading="lazy">
-                                <div class="image-info"><p>${cols[2] || ''}</p></div>
-                            </div>`;
+                        const card = `<div class="premium-card" style="animation-delay: ${i*0.2}s">
+                            <img src="${cols[1].trim()}">
+                            <div class="card-desc">${cols[2] || ''}</div>
+                        </div>`;
+                        list.innerHTML += card;
                     }
                 });
             } catch (e) { console.error("Error loading data"); }
@@ -121,26 +128,23 @@
             const code = document.getElementById('targetCode').innerText;
             navigator.clipboard.writeText(code);
             window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-            alert("تم نسخ الرمز: " + code);
+            alert("تم نسخ الرمز بنجاح: " + code);
         }
 
         function checkPass() {
-            const input = document.getElementById('passInput').value;
-            if(input === correctPass) {
+            if(document.getElementById('passInput').value === correctPass) {
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('content').classList.remove('hidden');
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-            } else {
-                alert("الرمز غير صحيح!");
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
+            } else { 
+                alert("الرمز غير صحيح"); 
             }
         }
 
         init();
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
-        window.Telegram.WebApp.headerColor = "#050505";
+        window.Telegram.WebApp.headerColor = "#000000";
     </script>
 </body>
 </html>
-
-
