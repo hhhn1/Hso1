@@ -3,80 +3,132 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>تطبيق الألبومات</title>
+    <title>VIP Album</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; background-color: #000; color: #fff; margin: 0; padding: 15px; text-align: center; }
+        :root {
+            --gold: #d4af37;
+            --dark-bg: #0a0a0a;
+            --glass: rgba(255, 255, 255, 0.05);
+        }
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            background: radial-gradient(circle at top, #1a1a1a 0%, #000 100%);
+            color: #fff; margin: 0; padding: 20px;
+            display: flex; flex-direction: column; align-items: center; min-height: 100vh;
+        }
+        .container { width: 100%; max-width: 450px; animation: fadeIn 0.8s ease-out; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+
+        h2 { font-size: 28px; letter-spacing: 1px; margin-bottom: 10px; color: var(--gold); text-shadow: 0 0 10px rgba(212, 175, 55, 0.3); }
+        p { color: #666; font-size: 14px; margin-bottom: 40px; }
+
+        /* صندوق الدخول الفخم */
+        .glass-card {
+            background: var(--glass); backdrop-filter: blur(15px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 25px; padding: 30px; width: 100%; box-sizing: border-box;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+        }
+        .input-field {
+            width: 100%; padding: 15px; border-radius: 15px; border: 1px solid #333;
+            background: rgba(0,0,0,0.3); color: var(--gold); text-align: center;
+            font-size: 20px; font-weight: bold; margin-bottom: 20px; box-sizing: border-box;
+            outline: none; transition: 0.3s;
+        }
+        .input-field:focus { border-color: var(--gold); box-shadow: 0 0 10px rgba(212, 175, 55, 0.2); }
+        
+        .btn-vip {
+            width: 100%; padding: 18px; border-radius: 15px; border: none;
+            background: linear-gradient(45deg, #d4af37, #f9e29b);
+            color: #000; font-weight: 800; font-size: 17px; cursor: pointer;
+            text-transform: uppercase; transition: 0.3s;
+        }
+        .btn-vip:active { transform: scale(0.98); opacity: 0.9; }
+
+        /* تصميم كروت الصور */
+        #items-list { width: 100%; margin-top: 20px; }
+        .album-card {
+            background: var(--glass); border-radius: 20px; margin-bottom: 25px;
+            overflow: hidden; border: 1px solid rgba(255, 255, 255, 0.08);
+            transition: 0.4s; animation: slideUp 0.5s ease-out;
+        }
+        @keyframes slideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .album-card img { width: 100%; display: block; filter: brightness(0.9); transition: 0.5s; }
+        .album-card:hover img { filter: brightness(1.1); transform: scale(1.02); }
+        
+        .album-card .info-area { padding: 15px; background: linear-gradient(to top, #000, transparent); }
+        .album-card .description { font-size: 15px; color: #eee; line-height: 1.5; }
+
         .hidden { display: none; }
-        #lock-screen { margin-top: 50px; }
-        input { width: 85%; padding: 15px; border-radius: 12px; border: 1px solid #333; background: #1a1a1a; color: #fff; font-size: 18px; margin-bottom: 15px; }
-        button { width: 90%; padding: 15px; border-radius: 12px; border: none; background: #f39c12; color: #000; font-weight: bold; font-size: 16px; cursor: pointer; }
-        .card { background: #111; border-radius: 15px; margin-bottom: 20px; border: 1px solid #222; overflow: hidden; }
-        .card img { width: 100%; display: block; background: #222; }
-        .card .info { padding: 12px; font-size: 14px; color: #ccc; }
     </style>
 </head>
 <body>
 
-    <div id="lock-screen">
-        <h2>🔒 أدخل كلمة المرور</h2>
-        <input type="number" id="passInput" placeholder="الرمز...">
-        <button onclick="checkPass()">دخول</button>
+    <div id="lock-screen" class="container">
+        <h2>P R I V A T E</h2>
+        <p>المحتوى محمي بكلمة مرور</p>
+
+        <div class="glass-card">
+            <input type="number" id="passInput" class="input-field" placeholder="••••">
+            <button class="btn-vip" onclick="checkPass()">فتح الألبوم</button>
+        </div>
     </div>
 
-    <div id="content" class="hidden">
+    <div id="content" class="hidden container">
+        <h2 style="text-align: right;">الألبومات الخاصة</h2>
         <div id="items-list"></div>
     </div>
 
     <script>
-        // ضع الرابط الخاص بك هنا بين العلامتين "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4V6swf_1fE33kPaIG6nNS4lbf6Ii87Hxx9hKnR_xDvE4vpbm8SG2ZrPaGoMky5NGpAt-tkNzv7L4j/pub?output=csv"
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4V6swf_1fE33kPaIG6nNS4lbf6Ii87Hxx9hKnR_xDvE4vpbm8SG2ZrPaGoMky5NGpAt-tkNzv7L4j/pub?output=csv";
-        
         let correctPass = "";
 
         async function init() {
             try {
                 const resp = await fetch(CSV_URL);
                 const text = await resp.text();
-                const rows = text.split('\n').slice(1); // تجاهل سطر العناوين
-
-                // قراءة الرمز من أول صف (الخلية A2)
-                const firstRowCols = rows[0].split(',');
-                correctPass = firstRowCols[0].trim();
+                const rows = text.split('\n').slice(1);
+                correctPass = rows[0].split(',')[0].trim();
 
                 const list = document.getElementById('items-list');
-                rows.forEach(row => {
+                rows.forEach((row, index) => {
                     const cols = row.split(',');
-                    const imgUrl = cols[1] ? cols[1].trim() : "";
-                    const info = cols[2] ? cols[2].trim() : "";
-                    
-                    if(imgUrl && imgUrl.startsWith('http')) {
-                        list.innerHTML += `
-                            <div class="card">
-                                <img src="${imgUrl}">
-                                <div class="info">${info}</div>
+                    if(cols[1] && cols[1].trim().startsWith('http')) {
+                        const card = document.createElement('div');
+                        card.className = 'album-card';
+                        card.style.animationDelay = (index * 0.1) + 's';
+                        card.innerHTML = `
+                            <img src="${cols[1].trim()}" loading="lazy">
+                            <div class="info-area">
+                                <div class="description">${cols[2] || ''}</div>
                             </div>`;
+                        list.appendChild(card);
                     }
                 });
-            } catch (e) {
-                console.error("خطأ في جلب البيانات");
-            }
+            } catch (e) { console.error("Error loading"); }
         }
 
         function checkPass() {
-            const input = document.getElementById('passInput').value;
-            if(input === correctPass) {
-                document.getElementById('lock-screen').classList.add('hidden');
-                document.getElementById('content').classList.remove('hidden');
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+            if(document.getElementById('passInput').value === correctPass) {
+                document.getElementById('lock-screen').style.opacity = '0';
+                setTimeout(() => {
+                    document.getElementById('lock-screen').classList.add('hidden');
+                    document.getElementById('content').classList.remove('hidden');
+                    window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+                }, 300);
             } else {
-                alert("الرمز غير صحيح!");
+                window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+                alert("الرمز غير صحيح");
             }
         }
 
         init();
         window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand(); // يخلي التطبيق يفتح شاشة كاملة
+        window.Telegram.WebApp.expand();
+        window.Telegram.WebApp.headerColor = "#000000";
     </script>
 </body>
 </html>
