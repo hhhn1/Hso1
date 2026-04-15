@@ -6,99 +6,95 @@
     <title>عينات حسو - VIP</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
     <style>
-        :root { --gold: #c9a050; --bg: #000; }
-        * { box-sizing: border-box; }
+        :root { --gold: #c9a050; --bg: #0f1115; --card-bg: #1a1d23; }
         body { 
-            font-family: 'Segoe UI', sans-serif; background: var(--bg); color: #fff;
-            margin: 0; padding: 20px; overflow-x: hidden; min-height: 100vh;
-            display: flex; flex-direction: column; align-items: center;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+            background: var(--bg); color: #fff; margin: 0; padding: 15px; 
         }
 
-        /* خلفية النجوم المتحركة */
-        #particles-js { position: fixed; top: 0; left: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
-
-        .content-wrapper { position: relative; z-index: 2; width: 100%; max-width: 420px; text-align: center; }
-
-        h2 { font-weight: 200; letter-spacing: 5px; color: var(--gold); margin-top: 50px; text-transform: uppercase; }
-        .divider { width: 60px; height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); margin: 20px auto; }
-
-        /* صندوق الرمز الاحترافي */
-        .glass-box {
-            background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(15px);
-            border: 1px solid rgba(212, 175, 55, 0.2); border-radius: 25px;
-            padding: 30px 20px; margin-bottom: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+        /* الهيدر العلوي مثل الصورة */
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding: 5px; }
+        .contact-btn {
+            background: rgba(255, 255, 255, 0.05); border: 1px solid #333;
+            padding: 8px 15px; border-radius: 12px; display: flex; align-items: center;
+            text-decoration: none; color: #fff; font-size: 13px;
         }
-        .code-display { font-size: 32px; font-weight: bold; color: #fff; margin-bottom: 15px; letter-spacing: 5px; text-shadow: 0 0 10px var(--gold); }
-        .btn-copy { 
-            background: var(--gold); color: #000; border: none; padding: 10px 25px; 
-            border-radius: 50px; font-weight: bold; cursor: pointer; transition: 0.3s;
-        }
+        .online-dot { width: 8px; height: 8px; background: #4caf50; border-radius: 50%; margin-left: 8px; box-shadow: 0 0 5px #4caf50; }
+        .contact-user { color: var(--gold); font-weight: bold; margin-right: 5px; }
 
-        .input-vip {
-            background: rgba(0,0,0,0.6); border: 1px solid #222; width: 100%;
-            padding: 15px; border-radius: 15px; color: #fff; font-size: 20px;
-            text-align: center; margin-bottom: 20px; outline: none;
+        .album-title { font-size: 20px; font-weight: bold; display: flex; align-items: center; gap: 8px; }
+
+        /* شريط البحث */
+        .search-container {
+            background: #1e222a; border-radius: 15px; padding: 12px 15px;
+            display: flex; align-items: center; margin-bottom: 20px; border: 1px solid #2a2e37;
         }
-        .btn-enter {
-            background: linear-gradient(45deg, #8a6d3b, #c9a050, #e6be8a);
-            width: 100%; padding: 16px; border-radius: 15px; border: none;
-            color: #000; font-weight: 900; letter-spacing: 1px; cursor: pointer;
-            font-size: 18px;
+        .search-container input {
+            background: transparent; border: none; color: #fff; width: 100%; outline: none; text-align: right; font-size: 14px;
         }
 
-        /* معرض الصور الفخم */
-        .premium-card {
-            width: 100%; border-radius: 20px; overflow: hidden; margin-bottom: 30px;
-            background: #0a0a0a; border: 1px solid rgba(255,255,255,0.05);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5); transform: translateY(20px); opacity: 0;
-            animation: slideIn 0.6s forwards;
+        /* الفلاتر */
+        .filters-scroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: none; }
+        .filters-scroll::-webkit-scrollbar { display: none; }
+        .f-item {
+            background: #252932; padding: 8px 18px; border-radius: 20px;
+            font-size: 13px; white-space: nowrap; color: #aaa; border: 1px solid #333;
         }
-        @keyframes slideIn { to { transform: translateY(0); opacity: 1; } }
-        .premium-card img { width: 100%; display: block; filter: brightness(0.85); transition: 0.5s; }
-        .premium-card:hover img { filter: brightness(1.1); }
-        .card-desc { padding: 15px; text-align: right; background: rgba(10,10,10,0.9); font-size: 14px; color: #aaa; }
+        .f-item.active { background: #323741; color: #fff; border-color: #555; }
+
+        /* شبكة المعرض */
+        .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .card { background: var(--card-bg); border-radius: 20px; overflow: hidden; border: 1px solid #222; position: relative; }
+        .card img.main { width: 100%; height: 180px; object-fit: cover; display: block; }
+        .card-info { padding: 10px; font-size: 12px; background: #16191f; display: flex; justify-content: space-between; align-items: center; }
+        
+        .thumb-bar { display: flex; gap: 2px; height: 35px; background: #000; border-top: 1px solid #222; }
+        .thumb-bar img { width: 25%; height: 100%; object-fit: cover; opacity: 0.5; }
 
         .hidden { display: none; }
+        #lock-screen { text-align: center; padding-top: 80px; }
     </style>
 </head>
 <body>
 
-    <div id="particles-js"></div>
+    <div id="lock-screen">
+        <h2 style="color:var(--gold); letter-spacing: 3px;">عينات حسو</h2>
+        <div style="background:rgba(255,255,255,0.03); padding:30px; border-radius:25px; margin:30px 0; border: 1px dashed var(--gold);">
+            <div id="targetCode" style="font-size:32px; font-weight:bold; letter-spacing:8px; margin-bottom:15px;">1234</div>
+            <button onclick="copyCode()" style="background:var(--gold); border:none; padding:10px 25px; border-radius:50px; font-weight:bold; cursor:pointer;">نسخ الرمز</button>
+        </div>
+        <input type="number" id="passInput" placeholder="أدخل الرمز هنا" style="width:90%; padding:15px; border-radius:15px; border:1px solid #333; background:#1a1d23; color:#fff; text-align:center; font-size:18px;">
+        <button onclick="checkPass()" style="width:90%; padding:15px; margin-top:20px; background:linear-gradient(45deg, #c9a050, #f9e29b); border:none; border-radius:15px; font-weight:bold; font-size:18px; color:#000;">الدخول</button>
+    </div>
 
-    <div id="lock-screen" class="content-wrapper">
-        <h2>عينات حسو</h2>
-        <div class="divider"></div>
-        
-        <div class="glass-box">
-            <div class="code-display" id="targetCode">1234</div>
-            <button class="btn-copy" onclick="copyCode()">اضغط للنسخ</button>
+    <div id="content" class="hidden">
+        <div class="top-header">
+            <a href="https://t.me/xxnnn8" class="contact-btn">
+                <span class="online-dot"></span>
+                <span>تواصل معنا</span>
+                <span class="contact-user">@xxnnn8</span>
+            </a>
+            <div class="album-title">الألبومات 📂</div>
         </div>
 
-        <input type="number" id="passInput" class="input-vip" placeholder="أدخل الرمز الملكي">
-        <button class="btn-enter" onclick="checkPass()">الدخول</button>
+        <div class="search-container">
+            <input type="text" placeholder="ابحث عن ألبوم...">
+            <span style="opacity:0.5">🔍</span>
+        </div>
+
+        <div class="filters-scroll">
+            <div class="f-item active">الكل 325</div>
+            <div class="f-item">سناب 20</div>
+            <div class="f-item">مشهورات 21</div>
+            <div class="f-item">سهرات 12</div>
+            <div class="f-item">حصري 10</div>
+        </div>
+
+        <div class="gallery" id="items-list">
+            </div>
     </div>
 
-    <div id="content" class="content-wrapper hidden">
-        <h2>المعرض الملكي</h2>
-        <div class="divider" style="width: 150px;"></div>
-        <div id="items-list"></div>
-    </div>
-
-    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
     <script>
-        // برمجة النماذج المتحركة (الخلفية)
-        particlesJS("particles-js", {
-            "particles": {
-                "number": { "value": 80 },
-                "color": { "value": "#c9a050" },
-                "shape": { "type": "circle" },
-                "opacity": { "value": 0.5 },
-                "size": { "value": 2 },
-                "line_linked": { "enable": true, "distance": 150, "color": "#c9a050", "opacity": 0.2, "width": 1 },
-                "move": { "enable": true, "speed": 2 }
-            }
-        });
-
         const CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS4V6swf_1fE33kPaIG6nNS4lbf6Ii87Hxx9hKnR_xDvE4vpbm8SG2ZrPaGoMky5NGpAt-tkNzv7L4j/pub?output=csv";
         let correctPass = "";
 
@@ -111,40 +107,45 @@
                 document.getElementById('targetCode').innerText = correctPass;
 
                 const list = document.getElementById('items-list');
-                rows.forEach((row, i) => {
+                rows.forEach(row => {
                     const cols = row.split(',');
-                    if(cols[1] && cols[1].trim().startsWith('http')) {
-                        const card = `<div class="premium-card" style="animation-delay: ${i*0.2}s">
-                            <img src="${cols[1].trim()}">
-                            <div class="card-desc">${cols[2] || ''}</div>
-                        </div>`;
-                        list.innerHTML += card;
+                    if(cols[1] && cols[1].trim()) {
+                        const imgs = cols[1].split(','); 
+                        const main = imgs[0].trim();
+                        let thumbs = '';
+                        imgs.slice(1, 5).forEach(t => { thumbs += `<img src="${t.trim()}">`; });
+
+                        list.innerHTML += `
+                            <div class="card">
+                                <img src="${main}" class="main" loading="lazy">
+                                <div class="card-info">
+                                    <span style="opacity:0.6">🖼️ ${imgs.length}</span>
+                                    <span>${cols[2] || 'ألبوم'}</span>
+                                </div>
+                                <div class="thumb-bar">${thumbs}</div>
+                            </div>`;
                     }
                 });
-            } catch (e) { console.error("Error loading data"); }
-        }
-
-        function copyCode() {
-            const code = document.getElementById('targetCode').innerText;
-            navigator.clipboard.writeText(code);
-            window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-            alert("تم نسخ الرمز بنجاح: " + code);
+            } catch (e) { console.error("Error"); }
         }
 
         function checkPass() {
             if(document.getElementById('passInput').value === correctPass) {
                 document.getElementById('lock-screen').style.display = 'none';
                 document.getElementById('content').classList.remove('hidden');
-                window.Telegram.WebApp.HapticFeedback.impactOccurred('heavy');
-            } else { 
-                alert("الرمز غير صحيح"); 
-            }
+                window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
+            } else { alert("الرمز غير صحيح"); }
+        }
+
+        function copyCode() {
+            navigator.clipboard.writeText(document.getElementById('targetCode').innerText);
+            window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
+            alert("تم نسخ الرمز");
         }
 
         init();
         window.Telegram.WebApp.ready();
         window.Telegram.WebApp.expand();
-        window.Telegram.WebApp.headerColor = "#000000";
     </script>
 </body>
 </html>
