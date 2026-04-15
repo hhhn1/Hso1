@@ -1,138 +1,305 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Hasso VIP PRO</title>
-    <script src="https://telegram.org/js/telegram-web-app.js"></script>
-    <style>
-        :root { --gold: #f1b933; --bg: #12141a; --card-bg: #1c1f26; --text: #ffffff; }
-        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; background: var(--bg); color: var(--text); margin: 0; padding: 0; overflow-x: hidden; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hasso VIP PRO</title>
 
-        /* شاشة القفل */
-        #lock-screen { height: 100vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box; transition: 0.5s; }
-        .lock-header { font-size: 24px; font-weight: bold; margin-bottom: 30px; text-align: center; }
+<script src="https://telegram.org/js/telegram-web-app.js"></script>
 
-        /* حاوية الرمز والنسخ */
-        .copy-box { width: 100%; max-width: 350px; background: #1a1c22; border: 1px solid #2a2d35; border-radius: 12px; padding: 15px; margin-bottom: 15px; text-align: center; box-sizing: border-box; }
-        .target-code { color: var(--gold); font-size: 32px; font-weight: 900; letter-spacing: 5px; margin-bottom: 10px; }
-        .btn-copy { width: 100%; background: var(--gold); border: none; padding: 12px; border-radius: 10px; font-weight: bold; font-size: 16px; cursor: pointer; }
+<style>
+:root {
+    --gold: #f1b933;
+    --bg: #12141a;
+    --card-bg: #1c1f26;
+    --text: #ffffff;
+}
 
-        /* حقل الإدخال وزر الدخول */
-        .input-vip { width: 100%; max-width: 350px; background: #252830; border: none; padding: 18px; border-radius: 12px; color: #fff; text-align: center; font-size: 18px; margin-bottom: 15px; outline: none; box-sizing: border-box; }
-        .btn-enter { width: 100%; max-width: 350px; background: var(--gold); border: none; padding: 18px; border-radius: 12px; font-weight: bold; font-size: 18px; cursor: pointer; }
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    margin: 0;
+}
 
-        /* الواجهة الرئيسية */
-        #content { display: none; opacity: 0; padding: 15px; transition: 0.5s; }
-        .main-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .gallery { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
-        .card { background: var(--card-bg); border-radius: 15px; overflow: hidden; position: relative; border: 1px solid #222; }
-        .media-box { width: 100%; height: 200px; background: #000; }
-        .media-box img, .media-box video { width: 100%; height: 100%; object-fit: cover; }
-        .card-info { padding: 10px; background: rgba(0,0,0,0.7); position: absolute; bottom: 0; width: 100%; box-sizing: border-box; }
-        .card-title { font-size: 12px; font-weight: bold; color: #fff; }
+/* شاشة القفل */
+#lock-screen {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+    animation: fade 0.5s;
+}
 
-        /* عارض المحتوى */
-        #viewer { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: #000; z-index: 10000; display: none; flex-direction: column; overflow-y: auto; }
-        .close-btn { position: sticky; top: 20px; right: 20px; z-index: 10001; background: var(--gold); border: none; padding: 10px 20px; border-radius: 8px; font-weight: bold; color: #000; }
-    </style>
+@keyframes fade {
+    from {opacity:0; transform: translateY(20px);}
+    to {opacity:1;}
+}
+
+.lock-header {
+    font-size: 22px;
+    font-weight: bold;
+    margin-bottom: 25px;
+}
+
+/* صندوق الكود */
+.copy-box {
+    width: 100%;
+    max-width: 350px;
+    background: #1a1c22;
+    border-radius: 12px;
+    padding: 15px;
+    text-align: center;
+    margin-bottom: 15px;
+}
+
+.target-code {
+    color: var(--gold);
+    font-size: 34px;
+    font-weight: bold;
+    letter-spacing: 6px;
+}
+
+/* أزرار */
+button {
+    transition: 0.3s;
+}
+
+.btn-copy, .btn-enter {
+    width: 100%;
+    background: var(--gold);
+    border: none;
+    padding: 14px;
+    border-radius: 12px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-copy:hover, .btn-enter:hover {
+    background: #d9a52c;
+}
+
+/* انبوت */
+.input-vip {
+    width: 100%;
+    max-width: 350px;
+    background: #252830;
+    border: none;
+    padding: 16px;
+    border-radius: 12px;
+    color: #fff;
+    text-align: center;
+    font-size: 18px;
+    margin-bottom: 15px;
+    outline: none;
+}
+
+/* المحتوى */
+#content {
+    display: none;
+    padding: 15px;
+    animation: fade 0.5s;
+}
+
+.main-header {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.gallery {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 10px;
+}
+
+.card {
+    background: var(--card-bg);
+    border-radius: 12px;
+    overflow: hidden;
+}
+
+.media-box {
+    height: 180px;
+}
+
+.media-box img, .media-box video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+/* viewer */
+#viewer {
+    position: fixed;
+    inset: 0;
+    background: #000;
+    display: none;
+    flex-direction: column;
+    z-index: 9999;
+}
+
+.close-btn {
+    margin: 15px;
+    background: var(--gold);
+    border: none;
+    padding: 10px;
+    border-radius: 8px;
+}
+
+/* إشعار */
+.toast {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #111;
+    color: var(--gold);
+    padding: 10px 20px;
+    border-radius: 10px;
+    opacity: 0;
+    transition: 0.3s;
+}
+
+/* الحقوق */
+.footer {
+    text-align: center;
+    font-size: 12px;
+    color: #777;
+    margin-top: 15px;
+}
+
+.footer span {
+    color: var(--gold);
+}
+</style>
 </head>
+
 <body>
 
-    <div id="lock-screen">
-        <div class="lock-header">ادخل الرمز للوصول الى الالبومات</div>
+<div id="lock-screen">
+    <div class="lock-header">🔐 ادخل الرمز للوصول</div>
 
-        <div class="copy-box">
-            <div id="targetCode" class="target-code">----</div>
-            <button class="btn-copy" onclick="copyPass()">نسخ الرمز</button>
-        </div>
-
-        <input type="number" id="passInput" class="input-vip" placeholder="ادخل الرمز هنا">
-        <button class="btn-enter" onclick="checkPass()">دخول آمن</button>
+    <div class="copy-box">
+        <div id="targetCode" class="target-code">----</div>
+        <button class="btn-copy" onclick="copyPass()">نسخ الرمز</button>
     </div>
 
-    <div id="content">
-        <div class="main-header">
-            <div style="font-size: 20px; font-weight: 900;">📂 ألبومات حسو</div>
-            <div style="color:var(--gold); font-weight: bold; font-size: 14px;">@xxnnn8</div>
-        </div>
-        <div id="items-list" class="gallery"></div>
+    <input id="passInput" class="input-vip" placeholder="ادخل الرمز">
+    <button class="btn-enter" onclick="checkPass()">دخول</button>
+
+    <div class="footer">
+        جميع الحقوق محفوظة © <span>Hasso</span> | للتواصل: <span>@xxnnn8</span>
+    </div>
+</div>
+
+<div id="content">
+    <div class="main-header">
+        <div>📂 ألبومات حسو</div>
+        <div style="color:var(--gold)">@xxnnn8</div>
     </div>
 
-    <div id="viewer">
-        <button class="close-btn" onclick="closeViewer()">إغلاق</button>
-        <div id="viewer-content"></div>
+    <div id="items-list" class="gallery"></div>
+
+    <div class="footer">
+        © Hasso VIP PRO
     </div>
+</div>
 
-    <script>
-        // رابط الـ API الخاص بك
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwTsq5C9s1gv-uz_NJMNMDZqFHKSzP6h5dIO-hOQrlv2m8mpY11alQdcJ5c9EERS1Md/exec";
-        let correctPass = "";
+<div id="viewer">
+    <button class="close-btn" onclick="closeViewer()">إغلاق</button>
+    <div id="viewer-content"></div>
+</div>
 
-        async function init() {
-            try {
-                const resp = await fetch(SCRIPT_URL);
-                const data = await resp.json();
-                
-                if(data.length > 0) {
-                    correctPass = data[0].code.toString().trim();
-                    document.getElementById('targetCode').innerText = correctPass;
+<div id="toast" class="toast"></div>
 
-                    const list = document.getElementById('items-list');
-                    data.forEach(item => {
-                        if(item.links) {
-                            const urls = item.links.split(',').map(u => u.trim());
-                            const isVid = urls[0].toLowerCase().endsWith('.mp4');
-                            list.innerHTML += `
-                                <div class="card" onclick='openViewer(${JSON.stringify(urls)})'>
-                                    <div class="media-box">
-                                        ${isVid ? `<video muted loop playsinline><source src="${urls[0]}" type="video/mp4"></video>` : `<img src="${urls[0]}" loading="lazy">`}
-                                    </div>
-                                    <div class="card-info"><div class="card-title">${item.title}</div></div>
-                                </div>`;
-                        }
-                    });
-                }
-            } catch (e) { console.error("API Error"); }
-        }
+<script>
+const SCRIPT_URL = "PUT_API_HERE";
+let correctPass = "";
 
-        function checkPass() {
-            if(document.getElementById('passInput').value === correctPass) {
-                document.getElementById('lock-screen').style.display = 'none';
-                document.getElementById('content').style.display = 'block';
-                setTimeout(() => document.getElementById('content').style.opacity = '1', 50);
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('success');
-            } else {
-                alert("الرمز غير صحيح!");
-                window.Telegram.WebApp.HapticFeedback.notificationOccurred('error');
+// إشعار
+function showToast(msg) {
+    const t = document.getElementById("toast");
+    t.innerText = msg;
+    t.style.opacity = "1";
+    setTimeout(() => t.style.opacity = "0", 2000);
+}
+
+// تيليجرام سيف
+function tg(type) {
+    try {
+        window.Telegram.WebApp.HapticFeedback[type]("medium");
+    } catch(e){}
+}
+
+async function init() {
+    try {
+        const res = await fetch(SCRIPT_URL);
+        const data = await res.json();
+
+        correctPass = data[0].code.toString().trim();
+        document.getElementById("targetCode").innerText = correctPass;
+
+        const list = document.getElementById("items-list");
+
+        data.forEach(item => {
+            if(item.links) {
+                const urls = item.links.split(",");
+                const isVid = urls[0].includes(".mp4");
+
+                list.innerHTML += `
+                <div class="card" onclick='openViewer(${JSON.stringify(urls)})'>
+                    <div class="media-box">
+                        ${isVid ? `<video muted loop><source src="${urls[0]}"></video>` : `<img src="${urls[0]}">`}
+                    </div>
+                </div>`;
             }
-        }
+        });
 
-        function copyPass() {
-            navigator.clipboard.writeText(correctPass);
-            window.Telegram.WebApp.HapticFeedback.impactOccurred('medium');
-            alert("تم نسخ الرمز ✅");
-        }
+    } catch(e) {
+        showToast("خطأ بالاتصال");
+    }
+}
 
-        function openViewer(urls) {
-            const cont = document.getElementById('viewer-content');
-            cont.innerHTML = '';
-            urls.forEach(u => {
-                const isV = u.toLowerCase().endsWith('.mp4');
-                cont.innerHTML += `<div style="width:100%; margin-bottom:10px;">${isV ? `<video controls autoplay loop muted style="width:100%"><source src="${u}" type="video/mp4"></video>` : `<img src="${u}" style="width:100%">`}</div>`;
-            });
-            document.getElementById('viewer').style.display = 'flex';
-            window.Telegram.WebApp.HapticFeedback.impactOccurred('light');
-        }
+function checkPass() {
+    if(document.getElementById("passInput").value === correctPass) {
+        document.getElementById("lock-screen").style.display = "none";
+        document.getElementById("content").style.display = "block";
+        showToast("تم الدخول ✅");
+        tg("notificationOccurred");
+    } else {
+        showToast("رمز خطأ ❌");
+        tg("notificationOccurred");
+    }
+}
 
-        function closeViewer() {
-            document.getElementById('viewer').style.display = 'none';
-            document.getElementById('viewer-content').innerHTML = '';
-        }
+function copyPass() {
+    navigator.clipboard.writeText(correctPass);
+    showToast("تم النسخ");
+    tg("impactOccurred");
+}
 
-        init();
-        window.Telegram.WebApp.ready();
-        window.Telegram.WebApp.expand();
-    </script>
+function openViewer(urls) {
+    const cont = document.getElementById("viewer-content");
+    cont.innerHTML = "";
+
+    urls.forEach(u => {
+        cont.innerHTML += u.includes(".mp4") 
+        ? `<video controls style="width:100%"><source src="${u}"></video>`
+        : `<img src="${u}" style="width:100%">`;
+    });
+
+    document.getElementById("viewer").style.display = "flex";
+}
+
+function closeViewer() {
+    document.getElementById("viewer").style.display = "none";
+}
+
+init();
+</script>
+
 </body>
 </html>
