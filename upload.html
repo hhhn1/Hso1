@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة رفع عينات حسو</title>
+    <style>
+        body { font-family: sans-serif; background: #12141a; color: white; text-align: center; padding: 20px; }
+        .upload-card { background: #1c1f26; padding: 30px; border-radius: 20px; border: 2px dashed #f1b933; max-width: 400px; margin: auto; }
+        input[type="file"] { display: none; }
+        .label-file { background: #f1b933; color: black; padding: 15px 25px; border-radius: 10px; cursor: pointer; font-weight: bold; display: inline-block; margin-bottom: 20px; }
+        #status { margin-top: 20px; color: #888; }
+        .result-box { display: none; margin-top: 20px; background: #000; padding: 15px; border-radius: 10px; word-break: break-all; border: 1px solid #333; }
+        .copy-btn { background: #4CAF50; border: none; color: white; padding: 10px; border-radius: 5px; margin-top: 10px; cursor: pointer; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <h2>لوحة رفع الوسائط 🚀</h2>
+    <div class="upload-card">
+        <label for="file-upload" class="label-file">اختر فيديو أو صورة</label>
+        <input id="file-upload" type="file" onchange="uploadFile(this.files[0])">
+        <div id="status">جاهز للرفع...</div>
+        
+        <div id="resultContainer" class="result-box">
+            <div id="urlText" style="font-size: 12px; color: #f1b933;"></div>
+            <button class="copy-btn" onclick="copyUrl()">نسخ الرابط للشيت</button>
+        </div>
+    </div>
+
+    <script>
+        const cloudName = "dony02ez2";
+        const uploadPreset = "ml_default"; // تأكد من تفعيل Unsigned Upload في إعدادات Cloudinary
+
+        async function uploadFile(file) {
+            if (!file) return;
+            
+            const status = document.getElementById('status');
+            const resultContainer = document.getElementById('resultContainer');
+            const urlText = document.getElementById('urlText');
+            
+            status.innerText = "جاري الرفع... انتظر ثواني ⏳";
+            
+            const formData = new FormData();
+            formData.append('file', file);
+            formData.append('upload_preset', uploadPreset);
+
+            try {
+                const response = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.secure_url) {
+                    status.innerText = "تم الرفع بنجاح ✅";
+                    resultContainer.style.display = "block";
+                    urlText.innerText = data.secure_url;
+                } else {
+                    status.innerText = "خطأ في الرفع، تأكد من الـ Preset";
+                }
+            } catch (error) {
+                status.innerText = "فشل الاتصال بالسيرفر";
+            }
+        }
+
+        function copyUrl() {
+            const url = document.getElementById('urlText').innerText;
+            navigator.clipboard.writeText(url);
+            alert("تم النسخ! اذهب الآن وضعه في الشيت.");
+        }
+    </script>
+</body>
+</html>
