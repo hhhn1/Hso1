@@ -1,113 +1,69 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>@xxnnn8 😎</title>
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-<style>
-  :root {
-    --gold: #F5C842; --gold2: #e8a800; --dark: #0d0f18; --dark2: #13161f;
-    --dark3: #1a1d2e; --card: #1e2235; --border: rgba(245,200,66,0.18);
-    --text: #f0f0f5; --muted: #6b7099; --red: #ff4e4e;
-  }
-  * { margin:0; padding:0; box-sizing:border-box; }
-  body { background: var(--dark); font-family: 'Cairo', sans-serif; color: var(--text); min-height: 100vh; }
-  .wrap { max-width: 480px; margin: 0 auto; padding-bottom: 80px; }
-  .topbar { background: rgba(13,15,24,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 100; }
-  .topbar-logo { font-size: 20px; font-weight: 900; background: linear-gradient(135deg, var(--gold), #fff); -webkit-background-clip: text; background-clip: text; color: transparent; }
-  .screen { display: none; animation: fadeIn 0.3s ease; }
-  .screen.active { display: block; }
-  @keyframes fadeIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform:translateY(0); } }
-  .pass-screen { padding: 40px 24px; display: flex; flex-direction: column; align-items: center; gap: 22px; }
-  .pass-input-wrap { width: 100%; background: var(--dark3); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
-  .pass-input-wrap input { width: 100%; background: transparent; border: none; padding: 18px 22px; font-size: 20px; color: var(--text); font-family: 'Cairo'; text-align: center; outline: none; }
-  .login-btn { background: var(--gold); color: #000; border: none; width: 100%; padding: 18px; border-radius: 16px; font-size: 20px; font-weight: 900; cursor: pointer; }
-  .media-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 20px; }
-  .media-card { background: var(--card); border-radius: 18px; overflow: hidden; position: relative; border: 1px solid var(--border); }
-  .media-thumb { width: 100%; height: 150px; object-fit: cover; }
-  .media-info { padding: 10px; text-align: center; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.05); }
-</style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>@xxnnn8 😎 | لوحة التحكم</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        :root { --gold: #F5C842; --dark: #0d0f18; --card: #1e2235; --text: #f0f0f5; }
+        body { background: var(--dark); font-family: 'Cairo', sans-serif; color: var(--text); margin: 0; padding: 20px; }
+        .container { max-width: 500px; margin: 0 auto; }
+        h2 { text-align: center; color: var(--gold); margin-bottom: 20px; }
+        .input-group { background: var(--card); padding: 20px; border-radius: 15px; border: 1px solid rgba(245,200,66,0.2); }
+        input { width: 100%; padding: 12px; margin: 10px 0; border-radius: 8px; border: none; background: #1a1d2e; color: #fff; font-family: 'Cairo'; }
+        button { width: 100%; padding: 12px; background: var(--gold); border: none; border-radius: 8px; font-weight: 900; cursor: pointer; transition: 0.3s; }
+        button:active { transform: scale(0.98); }
+        .status { text-align: center; margin-top: 15px; font-size: 14px; color: var(--gold); display: none; }
+    </style>
 </head>
 <body>
 
-<div class="wrap">
-  <div class="topbar">
-    <div style="text-align:center;">
-      <div class="topbar-logo">@xxnnn8 😎</div>
-      <div style="font-size:10px; color:var(--gold)">الألبومات الحصرية</div>
+<div class="container">
+    <h2>إضافة ألبوم جديد 📤</h2>
+    <div class="input-group">
+        <input type="text" id="title" placeholder="عنوان الألبوم (مثلاً: لقطة PUBG)">
+        <input type="text" id="url" placeholder="الرابط المباشر (Top4Top أو ImgBB)">
+        <button id="sendBtn">نشر في الموقع</button>
     </div>
-  </div>
-
-  <div class="screen active" id="screenPass">
-    <div class="pass-screen">
-      <div style="font-size:60px">🔒</div>
-      <div style="font-size:24px; font-weight:900">أدخل كلمة المرور</div>
-      <div class="pass-input-wrap">
-        <input type="password" id="passInput" placeholder="****">
-      </div>
-      <button class="login-btn" id="loginBtn">دخول للألبومات</button>
-    </div>
-  </div>
-
-  <div class="screen" id="screenAlbum">
-    <div class="media-grid" id="mediaGrid">
-      </div>
-  </div>
+    <div id="status" class="status">جاري النشر... انتظر ثواني ⏳</div>
 </div>
 
 <script>
-  const PASS = "1234";
-  // ضع هنا رابط الـ CSV الخاص بجوجل شيت مالتك
-  const SHEET_CSV_URL = "رابط_ملف_الـ_CSV_هنا"; 
+    // الـ ID الجديد مالتك
+    const scriptID = "AKfycbwx5xGyr6NkwE1FQk3swohXDL_kYvqEljHFFofj7abg3JLzpOWj5NUW8cBZDAFwCytv";
+    const webAppUrl = `https://script.google.com/macros/s/${scriptID}/exec`;
 
-  const loginBtn = document.getElementById('loginBtn');
-  const passInput = document.getElementById('passInput');
-  const screenPass = document.getElementById('screenPass');
-  const screenAlbum = document.getElementById('screenAlbum');
-  const mediaGrid = document.getElementById('mediaGrid');
+    document.getElementById('sendBtn').onclick = async function() {
+        const title = document.getElementById('title').value;
+        const url = document.getElementById('url').value;
+        const status = document.getElementById('status');
 
-  loginBtn.onclick = () => {
-    if(passInput.value === PASS) {
-      screenPass.classList.remove('active');
-      screenAlbum.classList.add('active');
-      loadData();
-    } else {
-      alert("كلمة المرور غلط يا بطل!");
-    }
-  };
-
-  async function loadData() {
-    try {
-      const response = await fetch(SHEET_CSV_URL);
-      const data = await response.text();
-      const rows = data.split('\n').slice(1); // تجاهل السطر الأول
-
-      mediaGrid.innerHTML = '';
-      rows.forEach(row => {
-        const cols = row.split(',');
-        if (cols.length >= 2) {
-          const name = cols[0];
-          const url = cols[1].trim();
-          
-          const card = document.createElement('div');
-          card.className = 'media-card';
-          
-          // إذا كان الرابط فيديو أو صورة
-          if (url.includes('.mp4') || url.includes('.mov')) {
-            card.innerHTML = `<video class="media-thumb" src="${url}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()"></video>`;
-          } else {
-            card.innerHTML = `<img class="media-thumb" src="${url}">`;
-          }
-          
-          card.innerHTML += `<div class="media-info">${name}</div>`;
-          mediaGrid.appendChild(card);
+        if (!title || !url) {
+            alert("يا بطل املأ الحقول أولاً!");
+            return;
         }
-      });
-    } catch (e) {
-      mediaGrid.innerHTML = "خطأ في تحميل البيانات من الشيت";
-    }
-  }
+
+        status.style.display = "block";
+        status.innerText = "جاري الحفظ في Google Sheets...";
+
+        try {
+            // إرسال البيانات للسكريبت
+            await fetch(webAppUrl, {
+                method: "POST",
+                mode: "no-cors",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ title: title, url: url })
+            });
+
+            status.innerText = "✅ تم النشر بنجاح! اذهب لموقعك وشوف النتيجة.";
+            document.getElementById('title').value = "";
+            document.getElementById('url').value = "";
+        } catch (e) {
+            status.innerText = "❌ حدث خطأ، تأكد من إعدادات النشر (Anyone).";
+        }
+    };
 </script>
+
 </body>
 </html>
