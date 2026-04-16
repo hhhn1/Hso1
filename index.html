@@ -31,14 +31,17 @@ h1{
  color:transparent;
 }
 
+/* INPUT */
 input{
  padding:12px;
  border-radius:10px;
  border:none;
  width:220px;
  text-align:center;
+ margin-top:8px;
 }
 
+/* BUTTON */
 button{
  margin-top:10px;
  padding:10px 20px;
@@ -47,6 +50,21 @@ button{
  border-radius:10px;
  cursor:pointer;
  font-weight:bold;
+}
+
+/* COPY BOX */
+.copyBox{
+ display:flex;
+ gap:10px;
+ align-items:center;
+ justify-content:center;
+ margin-top:10px;
+}
+
+.copyBox input{
+ width:90px;
+ background:#222;
+ color:#fff;
 }
 
 /* GRID */
@@ -111,8 +129,15 @@ button{
 <div id="login" class="login">
   <h1>اهلا بك في عالم حسو</h1>
 
-  <p>رمز الدخول: <b>1234</b></p>
+  <p>انسخ الرمز او الصقه للدخول</p>
 
+  <!-- COPY PIN -->
+  <div class="copyBox">
+    <input id="pinText" value="1234" readonly>
+    <button onclick="copyPin()">📋 نسخ</button>
+  </div>
+
+  <!-- INPUT -->
   <input id="pin" placeholder="ادخل الرمز">
   <button onclick="login()">دخول</button>
 
@@ -136,19 +161,36 @@ button{
 
 let cache=[];
 
+/* COPY PIN */
+function copyPin(){
+  let pin = document.getElementById("pinText").value;
+
+  navigator.clipboard.writeText(pin).then(()=>{
+    alert("تم نسخ الرمز");
+  }).catch(()=>{
+    alert("فشل النسخ");
+  });
+}
+
 /* LOGIN */
 function login(){
  let pin=document.getElementById("pin").value;
 
- google.script.run.withSuccessHandler(res=>{
-  if(res){
-    document.getElementById("login").style.display="none";
-    document.getElementById("app").style.display="block";
-    loadAlbums();
-  } else {
-    alert("رمز خطأ");
-  }
- }).auth(pin);
+ google.script.run
+  .withSuccessHandler(res=>{
+    if(res){
+      document.getElementById("login").style.display="none";
+      document.getElementById("app").style.display="block";
+      loadAlbums();
+    } else {
+      alert("رمز خطأ");
+    }
+  })
+  .withFailureHandler(err=>{
+    alert("خطأ اتصال بالسيرفر");
+    console.log(err);
+  })
+  .auth(pin);
 }
 
 /* LOAD ALBUMS */
