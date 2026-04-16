@@ -1,508 +1,113 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
-    <meta name="telegram:mini-app" content="true">
-    <title>NayAlbum - ألبوم العروض والفيديو</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            user-select: none;
-        }
-
-        body {
-            background: linear-gradient(145deg, #0a0f1e 0%, #0c1222 100%);
-            font-family: system-ui, 'Segoe UI', 'Cairo', sans-serif;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 20px;
-        }
-
-        .app-container {
-            max-width: 550px;
-            width: 100%;
-            background: rgba(18, 25, 40, 0.75);
-            backdrop-filter: blur(2px);
-            border-radius: 48px;
-            box-shadow: 0 25px 45px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);
-            overflow: hidden;
-        }
-
-        .header-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 20px 24px 12px 24px;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .close-btn {
-            font-size: 28px;
-            line-height: 1;
-            color: #ff9f8f;
-            background: rgba(255,255,255,0.08);
-            width: 44px;
-            height: 44px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 30px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .close-btn:active { background: #ff5e3a30; transform: scale(0.96);}
-
-        .app-title {
-            font-size: 26px;
-            font-weight: 700;
-            background: linear-gradient(135deg, #FFFFFF, #CEB5FF);
-            background-clip: text;
-            -webkit-background-clip: text;
-            color: transparent;
-        }
-
-        .badge-light {
-            background: rgba(255,215,0,0.15);
-            padding: 6px 12px;
-            border-radius: 40px;
-            font-size: 13px;
-            color: #FFE6B0;
-        }
-
-        /* شاشة كلمة المرور */
-        .password-screen {
-            padding: 30px 28px 45px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 20px;
-        }
-
-        .lock-icon { font-size: 68px; margin: 10px 0; }
-
-        .password-screen h3 {
-            color: #f0f3fa;
-            font-weight: 600;
-            font-size: 26px;
-            text-align: center;
-        }
-
-        .sub-pass {
-            color: #9aa4bf;
-            font-size: 15px;
-            margin-top: -12px;
-        }
-
-        .pass-input-box {
-            background: #111927;
-            border-radius: 60px;
-            display: flex;
-            align-items: center;
-            width: 100%;
-            border: 1px solid #2d374f;
-            overflow: hidden;
-        }
-
-        .pass-input-box:focus-within {
-            border-color: #b77cff;
-            box-shadow: 0 0 0 3px rgba(183,124,255,0.3);
-        }
-
-        .pass-input-box input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            padding: 18px 22px;
-            font-size: 18px;
-            color: white;
-            font-family: monospace;
-            letter-spacing: 2px;
-            outline: none;
-        }
-
-        .copy-pass-btn {
-            background: rgba(255,255,255,0.05);
-            border: none;
-            color: #b3cdff;
-            padding: 0 18px;
-            font-size: 16px;
-            cursor: pointer;
-            font-weight: 500;
-        }
-
-        .enter-btn {
-            background: linear-gradient(95deg, #6c5ce7, #a463f5);
-            width: 100%;
-            border: none;
-            padding: 16px;
-            border-radius: 60px;
-            font-size: 20px;
-            font-weight: bold;
-            color: white;
-            margin-top: 8px;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 8px 18px rgba(108,92,231,0.3);
-        }
-
-        .enter-btn:active { transform: scale(0.97); opacity: 0.9;}
-
-        .wrong-pass {
-            color: #ffb4a2;
-            background: #ff3b2f20;
-            padding: 8px 16px;
-            border-radius: 60px;
-            font-size: 14px;
-        }
-
-        /* واجهة الألبوم */
-        .album-main {
-            display: none;
-            flex-direction: column;
-        }
-
-        .upload-area {
-            margin: 20px;
-            background: #0f1625c9;
-            border-radius: 36px;
-            padding: 20px;
-            border: 1px dashed #5865b0;
-            text-align: center;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-
-        .upload-area:active { background: #1a2440; }
-
-        .upload-icon { font-size: 42px; margin-bottom: 6px; }
-
-        .upload-area p { color: #cbd5ff; font-weight: 500; }
-
-        .file-types-hint {
-            font-size: 11px;
-            color: #6f7c9f;
-            margin-top: 8px;
-        }
-
-        .media-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-            gap: 16px;
-            padding: 10px 20px 30px;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .media-card {
-            background: #0b1020cc;
-            border-radius: 24px;
-            overflow: hidden;
-            backdrop-filter: blur(4px);
-            border: 1px solid #2a3353;
-        }
-
-        .media-card video, .media-card img {
-            width: 100%;
-            height: 170px;
-            object-fit: cover;
-            display: block;
-            background: #00000066;
-        }
-
-        .media-info {
-            padding: 10px;
-            font-size: 12px;
-            color: #b9c3e6;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid #262f4a;
-        }
-
-        .delete-item {
-            background: none;
-            border: none;
-            color: #ff8a7a;
-            font-size: 18px;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 40px;
-        }
-
-        .empty-album {
-            text-align: center;
-            padding: 45px 20px;
-            color: #7f89b0;
-            grid-column: 1/-1;
-        }
-
-        .bottom-note {
-            padding: 12px 24px 24px;
-            font-size: 12px;
-            text-align: center;
-            color: #4f5a7c;
-            border-top: 1px solid #1e2742;
-        }
-
-        button { font-family: inherit; }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>@xxnnn8 😎</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --gold: #F5C842; --gold2: #e8a800; --dark: #0d0f18; --dark2: #13161f;
+    --dark3: #1a1d2e; --card: #1e2235; --border: rgba(245,200,66,0.18);
+    --text: #f0f0f5; --muted: #6b7099; --red: #ff4e4e;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background: var(--dark); font-family: 'Cairo', sans-serif; color: var(--text); min-height: 100vh; }
+  .wrap { max-width: 480px; margin: 0 auto; padding-bottom: 80px; }
+  .topbar { background: rgba(13,15,24,0.92); backdrop-filter: blur(20px); border-bottom: 1px solid var(--border); padding: 14px 20px; display: flex; align-items: center; justify-content: center; position: sticky; top: 0; z-index: 100; }
+  .topbar-logo { font-size: 20px; font-weight: 900; background: linear-gradient(135deg, var(--gold), #fff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+  .screen { display: none; animation: fadeIn 0.3s ease; }
+  .screen.active { display: block; }
+  @keyframes fadeIn { from { opacity:0; transform: translateY(12px); } to { opacity:1; transform:translateY(0); } }
+  .pass-screen { padding: 40px 24px; display: flex; flex-direction: column; align-items: center; gap: 22px; }
+  .pass-input-wrap { width: 100%; background: var(--dark3); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
+  .pass-input-wrap input { width: 100%; background: transparent; border: none; padding: 18px 22px; font-size: 20px; color: var(--text); font-family: 'Cairo'; text-align: center; outline: none; }
+  .login-btn { background: var(--gold); color: #000; border: none; width: 100%; padding: 18px; border-radius: 16px; font-size: 20px; font-weight: 900; cursor: pointer; }
+  .media-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; padding: 20px; }
+  .media-card { background: var(--card); border-radius: 18px; overflow: hidden; position: relative; border: 1px solid var(--border); }
+  .media-thumb { width: 100%; height: 150px; object-fit: cover; }
+  .media-info { padding: 10px; text-align: center; font-size: 12px; border-top: 1px solid rgba(255,255,255,0.05); }
+</style>
 </head>
 <body>
-<div class="app-container" id="appRoot">
-    <div class="header-bar">
-        <div class="close-btn" id="closeAppBtn">✕</div>
-        <div class="app-title">nayalbum</div>
-        <div class="badge-light">تطبيق مصغر</div>
-    </div>
 
-    <!-- شاشة كلمة المرور -->
-    <div id="passwordScreen" class="password-screen">
-        <div class="lock-icon">🔐</div>
-        <h3>أدخل كلمة المرور 🎉</h3>
-        <div class="sub-pass">للوصول إلى الأليومات</div>
-        <div class="pass-input-box">
-            <input type="password" id="passInput" placeholder="كلمة المرور" value="1234" autocomplete="off">
-            <button class="copy-pass-btn" id="copyPassBtn">نسخ</button>
-        </div>
-        <button class="enter-btn" id="loginBtn">دخول</button>
-        <div id="errorMsg" style="min-height: 40px;"></div>
-        <div style="font-size:13px; color:#60688b;">🔒 كلمة المرور التجريبية: 1234</div>
+<div class="wrap">
+  <div class="topbar">
+    <div style="text-align:center;">
+      <div class="topbar-logo">@xxnnn8 😎</div>
+      <div style="font-size:10px; color:var(--gold)">الألبومات الحصرية</div>
     </div>
+  </div>
 
-    <!-- واجهة الألبوم -->
-    <div id="albumPanel" class="album-main">
-        <div class="upload-area" id="uploadTrigger">
-            <div class="upload-icon">📤➕</div>
-            <p>رفع فيديو أو صورة أو ملف APL</p>
-            <div class="file-types-hint">MP4, MOV, AVI, WEBM, JPG, PNG, GIF, APL</div>
-            <input type="file" id="fileUploadInput" accept="video/*,image/*, .mp4, .mov, .avi, .webm, .jpg, .jpeg, .png, .gif, .apl" multiple style="display: none;">
-        </div>
-        <div class="media-grid" id="mediaGrid">
-            <div class="empty-album">✨ لا توجد ملفات بعد، قم برفع فيديو أو وسائط</div>
-        </div>
-        <div class="bottom-note">
-            📁 يدعم رفع فيديوهات، صور، وأي صيغة APL
-        </div>
+  <div class="screen active" id="screenPass">
+    <div class="pass-screen">
+      <div style="font-size:60px">🔒</div>
+      <div style="font-size:24px; font-weight:900">أدخل كلمة المرور</div>
+      <div class="pass-input-wrap">
+        <input type="password" id="passInput" placeholder="****">
+      </div>
+      <button class="login-btn" id="loginBtn">دخول للألبومات</button>
     </div>
+  </div>
+
+  <div class="screen" id="screenAlbum">
+    <div class="media-grid" id="mediaGrid">
+      </div>
+  </div>
 </div>
 
 <script>
-    (function() {
-        const CORRECT_PASSWORD = "1234";
-        let mediaLibrary = [];
+  const PASS = "1234";
+  // ضع هنا رابط الـ CSV الخاص بجوجل شيت مالتك
+  const SHEET_CSV_URL = "رابط_ملف_الـ_CSV_هنا"; 
 
-        // عناصر DOM
-        const passwordScreenDiv = document.getElementById('passwordScreen');
-        const albumPanelDiv = document.getElementById('albumPanel');
-        const loginBtn = document.getElementById('loginBtn');
-        const passInput = document.getElementById('passInput');
-        const copyPassBtn = document.getElementById('copyPassBtn');
-        const errorMsgDiv = document.getElementById('errorMsg');
-        const mediaGrid = document.getElementById('mediaGrid');
-        const fileUploadInput = document.getElementById('fileUploadInput');
-        const uploadTrigger = document.getElementById('uploadTrigger');
-        const closeAppBtn = document.getElementById('closeAppBtn');
+  const loginBtn = document.getElementById('loginBtn');
+  const passInput = document.getElementById('passInput');
+  const screenPass = document.getElementById('screenPass');
+  const screenAlbum = document.getElementById('screenAlbum');
+  const mediaGrid = document.getElementById('mediaGrid');
 
-        // عرض الألبوم
-        function renderAlbum() {
-            mediaGrid.innerHTML = '';
-            if(mediaLibrary.length === 0) {
-                mediaGrid.innerHTML = '<div class="empty-album">📭 لا توجد وسائط بعد، ارفع فيديو أو ملف APL</div>';
-                return;
-            }
-            
-            mediaLibrary.forEach((item, idx) => {
-                const card = document.createElement('div');
-                card.className = 'media-card';
-                
-                if(item.type === 'video') {
-                    const videoElem = document.createElement('video');
-                    videoElem.src = item.url;
-                    videoElem.controls = true;
-                    videoElem.preload = 'metadata';
-                    videoElem.style.width = '100%';
-                    videoElem.style.height = '170px';
-                    card.appendChild(videoElem);
-                } 
-                else if(item.type === 'image') {
-                    const imgElem = document.createElement('img');
-                    imgElem.src = item.url;
-                    imgElem.alt = item.name;
-                    imgElem.loading = 'lazy';
-                    card.appendChild(imgElem);
-                }
-                else if(item.type === 'apl') {
-                    const previewDiv = document.createElement('div');
-                    previewDiv.style.background = '#1e293b';
-                    previewDiv.style.height = '170px';
-                    previewDiv.style.display = 'flex';
-                    previewDiv.style.alignItems = 'center';
-                    previewDiv.style.justifyContent = 'center';
-                    previewDiv.style.flexDirection = 'column';
-                    previewDiv.style.gap = '8px';
-                    previewDiv.innerHTML = `<div style="font-size:40px;">📄</div><div style="font-size:13px;color:#b9c3e6;">${escapeHtml(item.name)}</div><div style="font-size:10px;background:#00000060;padding:4px 8px;border-radius:40px;">APL metadata</div>`;
-                    card.appendChild(previewDiv);
-                    if(item.aplLink) {
-                        const linkRow = document.createElement('div');
-                        linkRow.style.padding = '6px 10px';
-                        linkRow.style.fontSize = '10px';
-                        linkRow.style.wordBreak = 'break-all';
-                        linkRow.innerHTML = `🔗 <a href="${escapeHtml(item.aplLink)}" target="_blank" style="color:#a58eff;">${escapeHtml(item.aplLink.substring(0,35))}</a>`;
-                        card.appendChild(linkRow);
-                    }
-                }
-                else {
-                    const fallback = document.createElement('div');
-                    fallback.style.height = '170px';
-                    fallback.style.display = 'flex';
-                    fallback.style.alignItems = 'center';
-                    fallback.style.justifyContent = 'center';
-                    fallback.innerHTML = `📁 ${escapeHtml(item.name)}`;
-                    card.appendChild(fallback);
-                }
-                
-                const infoDiv = document.createElement('div');
-                infoDiv.className = 'media-info';
-                const nameSpan = document.createElement('span');
-                nameSpan.innerText = item.name.length > 25 ? item.name.slice(0,22)+'...' : item.name;
-                const delBtn = document.createElement('button');
-                delBtn.innerText = '🗑';
-                delBtn.className = 'delete-item';
-                delBtn.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    mediaLibrary.splice(idx, 1);
-                    renderAlbum();
-                });
-                infoDiv.appendChild(nameSpan);
-                infoDiv.appendChild(delBtn);
-                card.appendChild(infoDiv);
-                mediaGrid.appendChild(card);
-            });
+  loginBtn.onclick = () => {
+    if(passInput.value === PASS) {
+      screenPass.classList.remove('active');
+      screenAlbum.classList.add('active');
+      loadData();
+    } else {
+      alert("كلمة المرور غلط يا بطل!");
+    }
+  };
+
+  async function loadData() {
+    try {
+      const response = await fetch(SHEET_CSV_URL);
+      const data = await response.text();
+      const rows = data.split('\n').slice(1); // تجاهل السطر الأول
+
+      mediaGrid.innerHTML = '';
+      rows.forEach(row => {
+        const cols = row.split(',');
+        if (cols.length >= 2) {
+          const name = cols[0];
+          const url = cols[1].trim();
+          
+          const card = document.createElement('div');
+          card.className = 'media-card';
+          
+          // إذا كان الرابط فيديو أو صورة
+          if (url.includes('.mp4') || url.includes('.mov')) {
+            card.innerHTML = `<video class="media-thumb" src="${url}" muted loop playsinline onmouseover="this.play()" onmouseout="this.pause()"></video>`;
+          } else {
+            card.innerHTML = `<img class="media-thumb" src="${url}">`;
+          }
+          
+          card.innerHTML += `<div class="media-info">${name}</div>`;
+          mediaGrid.appendChild(card);
         }
-
-        // معالجة الملفات المرفوعة
-        function handleFiles(files) {
-            if(!files || files.length === 0) return;
-            Array.from(files).forEach(file => {
-                const fileName = file.name;
-                const fileExt = fileName.split('.').pop().toLowerCase();
-                
-                if(fileExt === 'apl') {
-                    const reader = new FileReader();
-                    reader.onload = function(e) {
-                        const content = e.target.result;
-                        let extractedLink = '';
-                        const urlRegex = /(https?:\/\/[^\s]+)/g;
-                        const match = urlRegex.exec(content);
-                        if(match) extractedLink = match[0];
-                        mediaLibrary.push({
-                            id: Date.now() + Math.random() + fileName,
-                            type: 'apl',
-                            name: fileName,
-                            aplLink: extractedLink || 'محتوى APL (غير رابط)',
-                            rawContent: content.slice(0,200)
-                        });
-                        renderAlbum();
-                    };
-                    reader.readAsText(file);
-                    return;
-                }
-                
-                const isVideo = file.type.startsWith('video/') || ['mp4','mov','avi','webm','mkv'].includes(fileExt);
-                const isImage = file.type.startsWith('image/') || ['jpg','jpeg','png','gif','webp'].includes(fileExt);
-                if(isVideo || isImage) {
-                    const objectUrl = URL.createObjectURL(file);
-                    const mediaType = isVideo ? 'video' : 'image';
-                    mediaLibrary.push({
-                        id: Date.now() + Math.random(),
-                        type: mediaType,
-                        name: fileName,
-                        url: objectUrl,
-                    });
-                    renderAlbum();
-                } 
-                else {
-                    mediaLibrary.push({
-                        id: Date.now() + Math.random(),
-                        type: 'other',
-                        name: fileName,
-                        info: 'ملف غير مدعوم للعرض المباشر',
-                    });
-                    renderAlbum();
-                }
-            });
-        }
-
-        // رفع الملفات
-        uploadTrigger.addEventListener('click', () => fileUploadInput.click());
-        fileUploadInput.addEventListener('change', (e) => {
-            if(e.target.files.length) {
-                handleFiles(e.target.files);
-                fileUploadInput.value = '';
-            }
-        });
-
-        // السحب والإفلات
-        albumPanelDiv.addEventListener('dragover', (e) => e.preventDefault());
-        albumPanelDiv.addEventListener('drop', (e) => {
-            e.preventDefault();
-            if(e.dataTransfer.files.length) handleFiles(e.dataTransfer.files);
-        });
-
-        // نسخ كلمة المرور
-        copyPassBtn.addEventListener('click', () => {
-            navigator.clipboard.writeText(passInput.value).then(() => {
-                const originalText = copyPassBtn.innerText;
-                copyPassBtn.innerText = 'تم ✅';
-                setTimeout(() => copyPassBtn.innerText = originalText, 1000);
-            });
-        });
-
-        // تسجيل الدخول
-        function attemptLogin() {
-            if(passInput.value === CORRECT_PASSWORD) {
-                passwordScreenDiv.style.display = 'none';
-                albumPanelDiv.style.display = 'flex';
-                errorMsgDiv.innerHTML = '';
-                renderAlbum();
-            } else {
-                errorMsgDiv.innerHTML = '<div class="wrong-pass">⚠️ كلمة المرور غير صحيحة، حاول مجدداً</div>';
-            }
-        }
-        loginBtn.addEventListener('click', attemptLogin);
-        passInput.addEventListener('keypress', (e) => e.key === 'Enter' && attemptLogin());
-
-        // زر الإغلاق
-        closeAppBtn.addEventListener('click', () => {
-            if(albumPanelDiv.style.display === 'flex') {
-                passwordScreenDiv.style.display = 'flex';
-                albumPanelDiv.style.display = 'none';
-                passInput.value = '';
-                errorMsgDiv.innerHTML = '';
-            }
-        });
-
-        function escapeHtml(str) {
-            if(!str) return '';
-            return str.replace(/[&<>]/g, function(m) {
-                if(m === '&') return '&amp;';
-                if(m === '<') return '&lt;';
-                if(m === '>') return '&gt;';
-                return m;
-            });
-        }
-
-        // بدء التشغيل
-        passwordScreenDiv.style.display = 'flex';
-        albumPanelDiv.style.display = 'none';
-        renderAlbum();
-    })();
+      });
+    } catch (e) {
+      mediaGrid.innerHTML = "خطأ في تحميل البيانات من الشيت";
+    }
+  }
 </script>
 </body>
 </html>
