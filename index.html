@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>حسو الألبومات</title>
 
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
@@ -16,8 +16,6 @@
   --yellow:#f5c518;
   --white:#fff;
   --gray:#888;
-  --green:#2ecc71;
-  --danger:#e04444;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -28,96 +26,12 @@ body{
   color:var(--white);
 }
 
-/* دخول */
-#passcode-screen{
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
-}
-
-.logo-title{
-  font-size:28px;
-  font-weight:900;
-  color:var(--yellow);
-  margin-bottom:15px;
-}
-
-.copy-box{
-  width:100%;
-  max-width:340px;
-  background:var(--surface2);
-  border:2px dashed var(--yellow);
-  padding:15px;
-  border-radius:12px;
-  text-align:center;
-  margin-bottom:10px;
-}
-
-.copy-box strong{font-size:22px;}
-
-.contact-btn{
-  width:100%;
-  max-width:340px;
-  background:var(--green);
-  color:#000;
-  padding:12px;
-  border-radius:10px;
-  text-align:center;
-  text-decoration:none;
-  margin-bottom:15px;
-  font-weight:700;
-}
-
-.code-card{
-  width:100%;
-  max-width:340px;
-  background:var(--surface);
-  padding:15px;
-  border-radius:12px;
-  border:1px solid var(--border);
-}
-
-.code-input{
-  width:100%;
-  padding:12px;
-  text-align:center;
-  border-radius:10px;
-  border:1px solid var(--border);
-  background:var(--surface2);
-  color:var(--yellow);
-  font-size:18px;
-  margin-bottom:10px;
-}
-
-.btn-enter{
-  width:100%;
-  padding:12px;
-  background:var(--yellow);
-  border:none;
-  border-radius:10px;
-  font-weight:900;
-}
-
-/* التطبيق */
-#main-screen{display:none;}
-
+/* الهيدر */
 .app-header{
-  background:var(--surface);
   padding:12px;
   display:flex;
   justify-content:space-between;
   border-bottom:1px solid var(--border);
-}
-
-.main-title{
-  padding:15px;
-}
-
-.main-title h2{
-  color:var(--yellow);
 }
 
 /* الشبكة */
@@ -128,30 +42,29 @@ body{
   gap:10px;
 }
 
+/* الكرت */
 .album-item{
   background:var(--surface2);
   border:1px solid var(--border);
   border-radius:12px;
   overflow:hidden;
-  cursor:pointer;
 }
 
+/* الغلاف */
 .album-thumb{
-  height:90px;
-  background:#000;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:30px;
+  height:100px;
+  background-size:cover;
+  background-position:center;
 }
 
+/* المعلومات */
 .album-info{
   padding:10px;
 }
 
 .album-name{
-  font-size:14px;
   font-weight:700;
+  font-size:14px;
 }
 
 .album-meta{
@@ -159,139 +72,86 @@ body{
   color:var(--gray);
   margin-top:4px;
 }
-
-.categories{
-  display:flex;
-  gap:8px;
-  padding:10px;
-  overflow-x:auto;
-}
-
-.category{
-  padding:6px 12px;
-  background:var(--surface2);
-  border-radius:20px;
-  font-size:12px;
-  white-space:nowrap;
-}
-
-.category.active{
-  background:var(--yellow);
-  color:#000;
-}
 </style>
 </head>
 
 <body>
 
-<!-- شاشة الدخول -->
-<div id="passcode-screen">
-
-  <div class="logo-title">حسو</div>
-
-  <div class="copy-box" onclick="copyOnlyCode()">
-    <div>انسخ الرمز</div>
-    <strong>1234</strong>
-  </div>
-
-  <a class="contact-btn" href="https://t.me/xxnnn8" target="_blank">
-    للتواصل معنا @xxnnn8
-  </a>
-
-  <div class="code-card">
-    <input id="code-input" class="code-input" placeholder="أدخل الرمز">
-    <button class="btn-enter" onclick="checkCode()">دخول</button>
-  </div>
-
+<div class="app-header">
+  <div>@xxnnn8</div>
+  <div style="color:var(--yellow);font-weight:900;">حسو</div>
+  <div></div>
 </div>
 
-<!-- التطبيق -->
-<div id="main-screen">
-
-  <div class="app-header">
-    <div>@xxnnn8</div>
-    <div style="color:var(--yellow);font-weight:900;">حسو</div>
-    <button onclick="logout()" style="background:none;border:none;color:#888;">خروج</button>
-  </div>
-
-  <div class="main-title">
-    <h2>الألبومات</h2>
-  </div>
-
-  <div class="albums-list" id="albumsList"></div>
-
-</div>
+<div class="albums-list" id="albumsList"></div>
 
 <script>
-const CORRECT_CODE="1234";
-const API="https://script.google.com/macros/s/AKfycbxOiUTM6SaheW9uf_5uIECabsMxSDoniDF5MeXGL1Q5hm1M7e05RaCs6PIwqU6G5UtZ/exec";
 
-let current=[];
+const API = "YOUR_GOOGLE_SCRIPT_URL_HERE";
 
-function copyOnlyCode(){
-  navigator.clipboard.writeText("1234");
-  alert("تم النسخ");
-}
-
-function checkCode(){
-  if(document.getElementById("code-input").value===CORRECT_CODE){
-    sessionStorage.setItem("auth","1");
-    showApp();
-  }
-}
-
-function showApp(){
-  document.getElementById("passcode-screen").style.display="none";
-  document.getElementById("main-screen").style.display="block";
-  load();
-}
+let albums = [];
 
 async function load(){
-  const res=await fetch(API);
-  const data=await res.json();
+  const res = await fetch(API);
+  const data = await res.json();
 
-  current=data.map(a=>({
-    name:a.name,
-    links:(a.video||"").split(" - "),
-    count:(a.video||"").split(" - ").length
-  }));
+  albums = data.map(item => {
+
+    const links = (item.video || "").split(" - ");
+
+    // ⭐ الغلاف: D أولاً ثم أول رابط
+    const cover =
+      item.cover ||
+      item.d ||
+      links[0] ||
+      "https://via.placeholder.com/300x200";
+
+    return {
+      name: item.name,
+      links: links,
+      count: links.length,
+      cover: cover
+    };
+  });
 
   render();
 }
 
 function render(){
-  document.getElementById("albumsList").innerHTML=current.map((a,i)=>`
+  document.getElementById("albumsList").innerHTML = albums.map((a,i)=>`
     <div class="album-item" onclick="openAlbum(${i})">
-      <div class="album-thumb">📁</div>
+
+      <div class="album-thumb" style="background-image:url('${a.cover}')"></div>
+
       <div class="album-info">
         <div class="album-name">${a.name}</div>
         <div class="album-meta">${a.count} مقطع • @xxnnn8</div>
       </div>
+
     </div>
   `).join("");
 }
 
 function openAlbum(i){
-  const a=current[i];
+  const a = albums[i];
 
-  const m=document.createElement("div");
-  m.style="position:fixed;inset:0;background:#000;overflow:auto;z-index:9999;padding:10px";
+  const modal = document.createElement("div");
+  modal.style = "position:fixed;inset:0;background:#000;z-index:9999;overflow:auto;padding:10px";
 
-  m.innerHTML=`
+  modal.innerHTML = `
     <button onclick="this.parentElement.remove()" style="color:#fff">إغلاق</button>
     <h3 style="color:#f5c518">${a.name}</h3>
-    ${a.links.map(l=>`<video src="${l}" controls style="width:100%;margin:5px 0"></video>`).join("")}
+
+    ${a.links.map(l=>`
+      <video src="${l}" controls style="width:100%;margin:5px 0;border-radius:10px"></video>
+    `).join("")}
   `;
 
-  document.body.appendChild(m);
+  document.body.appendChild(modal);
 }
 
-function logout(){
-  sessionStorage.clear();
-  location.reload();
-}
+load();
 
-if(sessionStorage.getItem("auth")==="1")showApp();
 </script>
 
 </body>
