@@ -2,7 +2,7 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>حصريات حسو</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
@@ -21,7 +21,6 @@
   * { margin: 0; padding: 0; box-sizing: border-box; }
   body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; overflow-x: hidden; }
 
-  /* الشاشة الرئيسية للدخول */
   #passcode-screen {
     min-height: 100vh; display: flex; flex-direction: column;
     align-items: center; justify-content: center; padding: 24px 20px;
@@ -32,7 +31,6 @@
   .logo-icon { font-size: 50px; margin-bottom: 10px; }
   .logo-title { font-size: 28px; font-weight: 900; color: var(--yellow); }
 
-  /* مربع النسخ */
   .copy-box {
     width: 100%; max-width: 350px; background: var(--surface2);
     border: 2px dashed var(--yellow); border-radius: 15px;
@@ -41,7 +39,6 @@
   .copy-box span { display: block; font-size: 12px; color: var(--gray); }
   .copy-box strong { font-size: 24px; color: #fff; }
 
-  /* زر التواصل الأخضر */
   .contact-btn {
     width: 100%; max-width: 350px; background: var(--green);
     color: #000; text-decoration: none; padding: 12px;
@@ -53,18 +50,40 @@
   .code-input { width: 100%; background: var(--surface2); border: 2px solid var(--border); border-radius: 10px; padding: 12px; font-size: 20px; color: var(--yellow); text-align: center; margin-bottom: 10px; outline: none; }
   .btn-enter { width: 100%; background: var(--yellow); border: none; border-radius: 10px; padding: 14px; font-weight: 900; cursor: pointer; }
 
-  /* واجهة المقاطع */
   #main-screen { display: none; flex-direction: column; min-height: 100vh; }
   .app-header { background: var(--surface); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
   
   .clips-grid { padding: 15px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .clip-card { background: var(--surface2); border: 1px solid var(--border); border-radius: 12px; padding: 15px; text-align: center; cursor: pointer; }
-  .clip-card:hover { border-color: var(--yellow); }
+  .clip-card {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
+    overflow: hidden; cursor: pointer; transition: all 0.2s;
+    display: flex; flex-direction: column;
+  }
+  .clip-card:active { transform: scale(0.95); background: #222; }
+  
+  .clip-thumb {
+    width: 100%; height: 120px; background-color: #000;
+    background-size: cover; background-position: center;
+    display: flex; align-items: center; justify-content: center;
+    border-bottom: 1px solid var(--border);
+  }
+  .clip-thumb span { font-size: 30px; opacity: 0.7; }
+  
+  .clip-name {
+    padding: 12px 8px; font-size: 13px; font-weight: 700;
+    text-align: center; color: var(--white);
+  }
 
-  /* المودال (النافذة المنبثقة) */
-  .modal-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.9); display: none; align-items: center; justify-content: center; z-index: 1000; padding: 20px; }
-  .modal { background: var(--surface); padding: 25px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; }
-  .modal-btn { display: block; background: #229ED9; color: white; padding: 14px; border-radius: 10px; text-decoration: none; margin-top: 20px; font-weight: 700; }
+  .btn-paste {
+    background: none; border: 1px solid var(--border); color: var(--gray);
+    padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 12px;
+  }
+  
+  .top-contact {
+    background: #000; color: var(--yellow); padding: 8px; text-align: center;
+    border-bottom: 1px solid var(--border); font-weight: bold;
+  }
+  .top-contact a { color: var(--yellow); text-decoration: none; }
 </style>
 </head>
 <body>
@@ -85,6 +104,7 @@
   </a>
 
   <div class="code-card">
+    <button class="btn-paste" onclick="pasteCode()">📋 لصق الرمز</button>
     <input type="text" id="code-input" class="code-input" placeholder="ألصق الرمز هنا">
     <button class="btn-enter" onclick="checkCode()">دخول</button>
     <div id="error-msg" style="color:var(--danger); text-align:center; margin-top:10px; font-size:12px;"></div>
@@ -92,6 +112,9 @@
 </div>
 
 <div id="main-screen">
+  <div class="top-contact">
+    للتواصل معنا <a href="https://t.me/xxnnn8" target="_blank">@xxnnn8</a> 👑
+  </div>
   <div class="app-header">
     <button onclick="logout()" style="background:none; border:none; color:var(--gray); font-family:'Cairo';">خروج ⇤</button>
     <div style="color:var(--yellow); font-weight:900;">حصريات حسو</div>
@@ -100,28 +123,28 @@
   <div class="clips-grid" id="clips-grid"></div>
 </div>
 
-<div class="modal-overlay" id="modal">
-  <div class="modal">
-    <h3 id="m-title" style="color:var(--yellow); margin-bottom:10px;"></h3>
-    <p style="font-size:13px; color:var(--gray);">سيتم توجيهك الآن لمشاهدة المقطع</p>
-    <a href="#" id="m-link" class="modal-btn" target="_blank">مشاهدة المقطع الآن</a>
-    <button onclick="closeModal()" style="background:none; border:none; color:var(--gray); margin-top:15px; cursor:pointer; font-family:'Cairo';">إلغاء</button>
-  </div>
-</div>
-
 <script>
   const CORRECT_CODE = "1234";
-  // ضع رابط الـ API الخاص بجوجل شيت هنا
-  const SHEET_URL = "https://script.google.com/macros/s/AKfycbwTQdhpGV1w8s8TJ9T490DeVnUEK-nE_pII8d6I4oz19ZS5izxxmumq2q6piKmrCnhV/exec";
+  const SHEET_URL = "https://script.google.com/macros/s/AKfycbyE1for4UNanZYE7KYiN-EG5I7uV849P_chwL5WvfcPutiy0NzBnNc7Wa4xNxXqvCJe/exec";
 
   let clipsData = [];
 
-  // دالة نسخ الرمز فقط بدون نصوص
   function copyOnlyCode() {
     const code = document.getElementById('the-code').innerText;
     navigator.clipboard.writeText(code).then(() => {
       alert("تم نسخ الرمز: " + code);
+    }).catch(() => {
+      prompt("انسخ الرمز يدوياً:", code);
     });
+  }
+
+  async function pasteCode() {
+    try {
+      const text = await navigator.clipboard.readText();
+      document.getElementById('code-input').value = text;
+    } catch (err) {
+      alert("تعذر اللصق تلقائياً، ألصقه يدوياً من فضلك.");
+    }
   }
 
   function checkCode() {
@@ -142,54 +165,96 @@
 
   async function loadData() {
     const grid = document.getElementById('clips-grid');
-    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:40px;">جاري جلب الحصريات...</div>';
+    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color: var(--yellow);">⏳ جاري التحميل...</div>';
     
     try {
-      const res = await fetch(SHEET_URL);
-      const data = await res.json();
-      const rows = Array.isArray(data) ? data : (data.data || []);
+      const res = await fetch(SHEET_URL + '?t=' + new Date().getTime());
+      if (!res.ok) throw new Error("خطأ في الاتصال بالسيرفر");
       
-      // هنا الكود يقرأ العمود الأول للاسم والثاني للرابط
-      clipsData = rows.map(r => ({
-        name: r.name || r[0] || "مقطع جديد",
-        link: r.link || r[1] || "#"
-      }));
+      const data = await res.json();
+      
+      let rows = [];
+      if (Array.isArray(data)) {
+        rows = data;
+      } else if (data.data && Array.isArray(data.data)) {
+        rows = data.data;
+      } else {
+        throw new Error("تنسيق البيانات غير مدعوم");
+      }
+
+      // ✅ التعديل الجديد: فصل العمود الثاني إلى رابطين
+      clipsData = rows.map(r => {
+        const name = r.name || r[0] || "مقطع";
+        const combined = r.link || r[1] || "";
+        
+        // فصل الروابط باستخدام فاصلة أو مسافة أو |
+        let videoLink = "#";
+        let thumbLink = "";
+        
+        if (combined) {
+          const parts = combined.split(/[,|\s]+/); // يفصل بأي فاصل: فاصلة، مسافة، أو |
+          videoLink = parts[0]?.trim() || "#";
+          thumbLink = parts[1]?.trim() || "";
+        }
+        
+        return { name, link: videoLink, thumbnail: thumbLink };
+      }).filter(c => c.name && c.link && c.link !== "#");
 
       render();
     } catch (e) {
-      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center;">تأكد من اتصال الإنترنت أو رابط الشيت</div>';
+      console.error(e);
+      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color: var(--danger);">❌ فشل التحميل</div>';
     }
   }
 
   function render() {
     const grid = document.getElementById('clips-grid');
     if (clipsData.length === 0) {
-      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center;">لا توجد مقاطع مضافة</div>';
+      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center;">🎬 لا توجد مقاطع مضافة</div>';
       return;
     }
-    grid.innerHTML = clipsData.map((clip, i) => `
-      <div class="clip-card" onclick="openModal(${i})">
-        <div style="font-size:30px; margin-bottom:5px;">🎥</div>
-        <div style="font-size:13px; font-weight:700;">${clip.name}</div>
-      </div>
-    `).join('');
+    
+    grid.innerHTML = clipsData.map((clip, i) => {
+      const bgStyle = clip.thumbnail && clip.thumbnail.startsWith('http') 
+        ? `background-image: url('${clip.thumbnail}');` 
+        : '';
+      
+      return `
+        <div class="clip-card" onclick="playClip(${i})">
+          <div class="clip-thumb" style="${bgStyle}">
+            ${!bgStyle ? '<span>🎥</span>' : ''}
+          </div>
+          <div class="clip-name">${clip.name}</div>
+        </div>
+      `;
+    }).join('');
   }
 
-  function openModal(i) {
-    document.getElementById('m-title').textContent = clipsData[i].name;
-    document.getElementById('m-link').href = clipsData[i].link;
-    document.getElementById('modal').style.display = 'flex';
+  function playClip(i) {
+    const link = clipsData[i].link;
+    if (link && link !== "#") {
+      window.open(link, '_blank');
+    } else {
+      alert("الرابط غير متوفر.");
+    }
   }
-
-  function closeModal() { document.getElementById('modal').style.display = 'none'; }
 
   function logout() {
     sessionStorage.removeItem('huso_auth');
     location.reload();
   }
 
+  let touchStartY = 0;
+  document.addEventListener('touchstart', e => { touchStartY = e.touches[0].clientY; }, {passive: true});
+  document.addEventListener('touchmove', e => {
+    if (window.scrollY === 0 && e.touches[0].clientY - touchStartY > 70) {
+      if (document.getElementById('main-screen').style.display === 'flex') {
+        loadData();
+      }
+    }
+  }, {passive: true});
+
   if (sessionStorage.getItem('huso_auth') === 'true') showApp();
 </script>
-
 </body>
 </html>
