@@ -8,20 +8,14 @@
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 
 <style>
-:root{
-  --bg:#0a0a0a;
-  --yellow:#f5c518;
-}
-
-*{margin:0;padding:0;box-sizing:border-box;}
-
 body{
+  margin:0;
   font-family:'Cairo',sans-serif;
-  background:var(--bg);
+  background:#0a0a0a;
   color:#fff;
 }
 
-/* 🔐 LOGIN */
+/* 🔐 شاشة الدخول */
 #login{
   min-height:100vh;
   display:flex;
@@ -30,14 +24,26 @@ body{
   align-items:center;
   gap:12px;
   padding:20px;
+  transition:0.4s;
 }
 
+/* العنوان */
+.title{
+  font-size:28px;
+  font-weight:900;
+  color:#f5c518;
+  text-align:center;
+}
+
+/* الرمز */
 .code-big{
   font-size:60px;
   font-weight:900;
-  color:var(--yellow);
+  color:#f5c518;
+  cursor:pointer;
 }
 
+/* أزرار */
 .btn{
   width:100%;
   max-width:300px;
@@ -45,12 +51,14 @@ body{
   border:none;
   border-radius:10px;
   font-weight:900;
+  cursor:pointer;
 }
 
-.copy{background:var(--yellow);color:#000;}
+.copy{background:#f5c518;color:#000;}
 .paste{background:#333;color:#fff;}
-.enter{background:var(--yellow);color:#000;}
+.enter{background:#f5c518;color:#000;}
 
+/* حقل */
 .input{
   width:100%;
   max-width:300px;
@@ -60,60 +68,36 @@ body{
   border:2px solid #222;
   background:#1a1a1a;
   color:#fff;
+  outline:none;
 }
 
-/* 📁 APP */
-#app{display:none;}
-
-.header{
-  display:flex;
-  justify-content:space-between;
-  padding:15px;
-  background:#111;
-  border-bottom:1px solid #222;
+/* ✨ انيميشن دخول */
+.fade-out{
+  opacity:0;
+  transform:scale(0.95);
+  transition:0.4s ease;
 }
 
-.contact{
-  margin:10px;
-  padding:12px;
-  background:var(--yellow);
-  color:#000;
-  font-weight:900;
-  text-align:center;
-  border-radius:12px;
+.fade-in{
+  animation:show 0.6s ease forwards;
 }
 
-/* GRID */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  padding:10px;
-}
-
-.card{
-  background:#1a1a1a;
-  border-radius:12px;
-  overflow:hidden;
-}
-
-.card img{
-  width:100%;
-  height:140px;
-  object-fit:cover;
-}
-
-.card div{
-  padding:8px;
-  font-size:13px;
-}
-
-/* 🔥 ANIMATION */
-.fade-out{opacity:0;transform:scale(.95);transition:.4s;}
-.fade-in{animation:show .5s ease forwards;}
 @keyframes show{
-  from{opacity:0;transform:translateY(20px);}
-  to{opacity:1;transform:translateY(0);}
+  0%{
+    opacity:0;
+    transform:translateY(30px);
+  }
+  100%{
+    opacity:1;
+    transform:translateY(0);
+  }
+}
+
+/* التطبيق */
+#app{
+  display:none;
+  min-height:100vh;
+  padding:20px;
 }
 </style>
 </head>
@@ -123,13 +107,17 @@ body{
 <!-- 🔐 LOGIN -->
 <div id="login">
 
-  <div class="code-big">1234</div>
+  <div class="title">حصريات حسو</div>
+
+  <div style="opacity:0.7;">رمز الدخول</div>
+
+  <div class="code-big" onclick="copy()">1234</div>
 
   <button class="btn copy" onclick="copy()">نسخ</button>
 
-  <input class="input" id="code" placeholder="كلمة المرور">
-
   <button class="btn paste" onclick="paste()">لصق</button>
+
+  <input id="code" class="input" placeholder="كلمة المرور">
 
   <button class="btn enter" onclick="enter()">دخول</button>
 
@@ -137,152 +125,37 @@ body{
 
 <!-- 📁 APP -->
 <div id="app">
-
-  <div class="header">
-    <div>@xxnnn8</div>
-    <div style="color:var(--yellow);font-weight:900;">حصريات حسو</div>
-    <div></div>
-  </div>
-
-  <div class="contact">للتواصل معنا @xxnnn8</div>
-
-  <div class="grid" id="grid"></div>
-
+  <h2 style="color:#f5c518">تم الدخول ✔</h2>
 </div>
 
 <script>
 
-const API="https://script.google.com/macros/s/AKfycbxOiUTM6SaheW9uf_5uIECabsMxSDoniDF5MeXGL1Q5hm1M7e05RaCs6PIwqU6G5UtZ/exec";
-
-let cache=null;
-
-/* نسخ */
 function copy(){
   navigator.clipboard.writeText("1234");
 }
 
-/* لصق */
 async function paste(){
   try{
-    const t=await navigator.clipboard.readText();
-    document.getElementById("code").value=t;
+    const t = await navigator.clipboard.readText();
+    document.getElementById("code").value = t;
   }catch(e){}
 }
 
-/* دخول */
+/* 🚀 دخول مع انيميشن */
 function enter(){
-  if(document.getElementById("code").value!=="1234")return;
 
-  let l=document.getElementById("login");
-  let a=document.getElementById("app");
+  if(document.getElementById("code").value !== "1234") return;
 
-  l.classList.add("fade-out");
+  const login = document.getElementById("login");
+  const app = document.getElementById("app");
+
+  login.classList.add("fade-out");
 
   setTimeout(()=>{
-    l.style.display="none";
-    a.style.display="block";
-    a.classList.add("fade-in");
-    load();
+    login.style.display="none";
+    app.style.display="block";
+    app.classList.add("fade-in");
   },400);
-}
-
-/* تحميل */
-async function load(){
-
-  if(cache){
-    render(cache);
-    return;
-  }
-
-  const res=await fetch(API+"?t="+Date.now());
-  const data=await res.json();
-
-  cache=data.map(x=>{
-    const links=(x.video||"").split(" - ");
-    return{
-      name:x.name,
-      links:links,
-      cover:x.cover||links[0]
-    };
-  });
-
-  render(cache);
-}
-
-/* عرض */
-function render(data){
-  document.getElementById("grid").innerHTML=
-    data.map((a,i)=>`
-      <div class="card" onclick="openAlbum(${i})">
-        <img loading="lazy" src="${a.cover}">
-        <div>${a.name}</div>
-      </div>
-    `).join("");
-}
-
-/* 🖼️ SWIPE VIEWER */
-function openAlbum(i){
-
-  const album=cache[i];
-  let index=0;
-
-  const m=document.createElement("div");
-  m.style.cssText="position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;";
-
-  m.innerHTML=`
-    <div style="padding:15px;display:flex;justify-content:space-between;color:#f5c518;">
-      <div>${album.name}</div>
-      <button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#fff;font-size:22px;">✕</button>
-    </div>
-
-    <div style="flex:1;display:flex;justify-content:center;align-items:center;">
-      <img id="img" src="${album.links[0]}" style="max-width:100%;max-height:90vh;border-radius:10px;">
-    </div>
-
-    <div style="display:flex;justify-content:space-between;padding:15px;">
-      <button id="prev" style="padding:10px 20px;">◀</button>
-      <button id="next" style="padding:10px 20px;">▶</button>
-    </div>
-  `;
-
-  document.body.appendChild(m);
-
-  const img=m.querySelector("#img");
-
-  function update(){
-    img.src=album.links[index];
-  }
-
-  m.querySelector("#next").onclick=()=>{
-    index=(index+1)%album.links.length;
-    update();
-  };
-
-  m.querySelector("#prev").onclick=()=>{
-    index=(index-1+album.links.length)%album.links.length;
-    update();
-  };
-
-  /* 👉 Swipe */
-  let sx=0;
-
-  img.addEventListener("touchstart",e=>{
-    sx=e.touches[0].clientX;
-  });
-
-  img.addEventListener("touchend",e=>{
-    let ex=e.changedTouches[0].clientX;
-
-    if(sx-ex>50){
-      index=(index+1)%album.links.length;
-      update();
-    }
-
-    if(ex-sx>50){
-      index=(index-1+album.links.length)%album.links.length;
-      update();
-    }
-  });
 }
 
 </script>
