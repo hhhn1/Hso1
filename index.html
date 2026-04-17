@@ -10,10 +10,7 @@
 <style>
 :root{
   --bg:#0a0a0a;
-  --surface:#111;
-  --surface2:#1a1a1a;
   --yellow:#f5c518;
-  --gray:#888;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -24,80 +21,69 @@ body{
   color:#fff;
 }
 
-/* 🔐 شاشة الدخول */
+/* 🔐 LOGIN */
 #login{
   min-height:100vh;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  gap:20px;
+  gap:12px;
   padding:20px;
 }
 
-/* الرقم الكبير */
 .code-big{
   font-size:60px;
   font-weight:900;
   color:var(--yellow);
-  cursor:pointer;
-  user-select:none;
 }
 
-/* زر لصق يمين */
-.top-bar{
+.btn{
   width:100%;
-  max-width:350px;
-  display:flex;
-  justify-content:flex-end;
-}
-
-.paste-btn{
-  background:var(--yellow);
+  max-width:300px;
+  padding:12px;
   border:none;
-  padding:10px 15px;
   border-radius:10px;
   font-weight:900;
-  cursor:pointer;
 }
 
-/* زر دخول */
-.enter-btn{
+.copy{background:var(--yellow);color:#000;}
+.paste{background:#333;color:#fff;}
+.enter{background:var(--yellow);color:#000;}
+
+.input{
   width:100%;
-  max-width:350px;
-  padding:14px;
-  border:none;
-  background:var(--yellow);
-  font-weight:900;
+  max-width:300px;
+  padding:12px;
+  text-align:center;
   border-radius:10px;
+  border:2px solid #222;
+  background:#1a1a1a;
+  color:#fff;
 }
 
-/* التطبيق */
-#app{
-  display:none;
-}
+/* 📁 APP */
+#app{display:none;}
 
-/* الهيدر */
 .header{
-  padding:15px;
   display:flex;
   justify-content:space-between;
+  padding:15px;
   background:#111;
   border-bottom:1px solid #222;
 }
 
-/* زر تواصل */
 .contact{
   margin:10px;
+  padding:12px;
   background:var(--yellow);
   color:#000;
-  padding:12px;
-  text-align:center;
   font-weight:900;
+  text-align:center;
   border-radius:12px;
 }
 
-/* الشبكة */
+/* GRID */
 .grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -119,35 +105,42 @@ body{
 
 .card div{
   padding:8px;
-  font-weight:800;
+  font-size:13px;
+}
+
+/* 🔥 ANIMATION */
+.fade-out{opacity:0;transform:scale(.95);transition:.4s;}
+.fade-in{animation:show .5s ease forwards;}
+@keyframes show{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
 }
 </style>
 </head>
 
 <body>
 
-<!-- 🔐 شاشة الدخول -->
+<!-- 🔐 LOGIN -->
 <div id="login">
 
-  <!-- زر لصق يمين -->
-  <div class="top-bar">
-    <button class="paste-btn" onclick="pasteCode()">📋 لصق</button>
-  </div>
+  <div class="code-big">1234</div>
 
-  <!-- الرقم الكبير -->
-  <div class="code-big" onclick="copyCode()">1234</div>
+  <button class="btn copy" onclick="copy()">نسخ</button>
 
-  <!-- دخول -->
-  <button class="enter-btn" onclick="enter()">دخول</button>
+  <input class="input" id="code" placeholder="كلمة المرور">
+
+  <button class="btn paste" onclick="paste()">لصق</button>
+
+  <button class="btn enter" onclick="enter()">دخول</button>
 
 </div>
 
-<!-- 📁 التطبيق -->
+<!-- 📁 APP -->
 <div id="app">
 
   <div class="header">
     <div>@xxnnn8</div>
-    <div style="color:#f5c518;font-weight:900;">حصريات حسو</div>
+    <div style="color:var(--yellow);font-weight:900;">حصريات حسو</div>
     <div></div>
   </div>
 
@@ -159,35 +152,41 @@ body{
 
 <script>
 
-const API = "https://script.google.com/macros/s/AKfycbxOiUTM6SaheW9uf_5uIECabsMxSDoniDF5MeXGL1Q5hm1M7e05RaCs6PIwqU6G5UtZ/exec";
+const API="https://script.google.com/macros/s/AKfycbxOiUTM6SaheW9uf_5uIECabsMxSDoniDF5MeXGL1Q5hm1M7e05RaCs6PIwqU6G5UtZ/exec";
 
-let cache = null;
+let cache=null;
 
-/* نسخ الرقم */
-function copyCode(){
+/* نسخ */
+function copy(){
   navigator.clipboard.writeText("1234");
 }
 
 /* لصق */
-async function pasteCode(){
+async function paste(){
   try{
-    const t = await navigator.clipboard.readText();
-    if(t.trim()==="1234"){
-      enter();
-    }
-  }catch(e){
-    alert("انسخه يدوياً");
-  }
+    const t=await navigator.clipboard.readText();
+    document.getElementById("code").value=t;
+  }catch(e){}
 }
 
 /* دخول */
 function enter(){
-  document.getElementById("login").style.display="none";
-  document.getElementById("app").style.display="block";
-  load();
+  if(document.getElementById("code").value!=="1234")return;
+
+  let l=document.getElementById("login");
+  let a=document.getElementById("app");
+
+  l.classList.add("fade-out");
+
+  setTimeout(()=>{
+    l.style.display="none";
+    a.style.display="block";
+    a.classList.add("fade-in");
+    load();
+  },400);
 }
 
-/* ⚡ تحميل لحظي */
+/* تحميل */
 async function load(){
 
   if(cache){
@@ -195,34 +194,96 @@ async function load(){
     return;
   }
 
-  const res = await fetch(API + "?t=" + Date.now());
-  const data = await res.json();
+  const res=await fetch(API+"?t="+Date.now());
+  const data=await res.json();
 
-  cache = data.map(x=>{
-    const links = (x.video||"").split(" - ");
-    return {
+  cache=data.map(x=>{
+    const links=(x.video||"").split(" - ");
+    return{
       name:x.name,
-      cover: x.cover || links[0],
-      count:links.length
+      links:links,
+      cover:x.cover||links[0]
     };
   });
 
   render(cache);
 }
 
-/* عرض سريع */
+/* عرض */
 function render(data){
-  document.getElementById("grid").innerHTML =
+  document.getElementById("grid").innerHTML=
     data.map((a,i)=>`
-      <div class="card">
+      <div class="card" onclick="openAlbum(${i})">
         <img loading="lazy" src="${a.cover}">
-        <div>${a.name}<br><span style="color:#888;font-size:12px">${a.count} مقاطع</span></div>
+        <div>${a.name}</div>
       </div>
     `).join("");
 }
 
-/* تشغيل تلقائي إذا داخل */
-if(sessionStorage.getItem("auth")==="1") enter();
+/* 🖼️ SWIPE VIEWER */
+function openAlbum(i){
+
+  const album=cache[i];
+  let index=0;
+
+  const m=document.createElement("div");
+  m.style.cssText="position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;";
+
+  m.innerHTML=`
+    <div style="padding:15px;display:flex;justify-content:space-between;color:#f5c518;">
+      <div>${album.name}</div>
+      <button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#fff;font-size:22px;">✕</button>
+    </div>
+
+    <div style="flex:1;display:flex;justify-content:center;align-items:center;">
+      <img id="img" src="${album.links[0]}" style="max-width:100%;max-height:90vh;border-radius:10px;">
+    </div>
+
+    <div style="display:flex;justify-content:space-between;padding:15px;">
+      <button id="prev" style="padding:10px 20px;">◀</button>
+      <button id="next" style="padding:10px 20px;">▶</button>
+    </div>
+  `;
+
+  document.body.appendChild(m);
+
+  const img=m.querySelector("#img");
+
+  function update(){
+    img.src=album.links[index];
+  }
+
+  m.querySelector("#next").onclick=()=>{
+    index=(index+1)%album.links.length;
+    update();
+  };
+
+  m.querySelector("#prev").onclick=()=>{
+    index=(index-1+album.links.length)%album.links.length;
+    update();
+  };
+
+  /* 👉 Swipe */
+  let sx=0;
+
+  img.addEventListener("touchstart",e=>{
+    sx=e.touches[0].clientX;
+  });
+
+  img.addEventListener("touchend",e=>{
+    let ex=e.changedTouches[0].clientX;
+
+    if(sx-ex>50){
+      index=(index+1)%album.links.length;
+      update();
+    }
+
+    if(ex-sx>50){
+      index=(index-1+album.links.length)%album.links.length;
+      update();
+    }
+  });
+}
 
 </script>
 
