@@ -1,30 +1,203 @@
 <!DOCTYPE html>
-<html>
+<html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>اختبار</title>
-</head>
-<body style="background:#0a0a0a; color:white; font-family:sans-serif; padding:20px;">
-<h2>المقاطع:</h2>
-<div id="list"></div>
-<script>
-const API = "https://script.google.com/macros/s/AKfycbyX8NHivy6jol4eTMpBVFacJ7_V5sJtYupsNFQZfevy4KEnnqk5Ib9TiZ-C7LUaIhdP/exec";
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>حصريات حسو</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #222222;
+    --yellow: #f5c518;
+    --white: #ffffff;
+    --gray: #888888;
+    --danger: #e04444;
+    --green: #2ecc71;
+  }
 
-fetch(API)
-  .then(res => res.json())
-  .then(data => {
-    if (data.length === 0) {
-      document.getElementById('list').innerHTML = '❌ لا توجد بيانات';
-    } else {
-      document.getElementById('list').innerHTML = data.map(item => 
-        `<div style="background:#111; padding:10px; margin:5px; border-radius:5px;">${item.name}</div>`
-      ).join('');
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; overflow-x: hidden; }
+
+  #passcode-screen {
+    min-height: 100vh; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; padding: 24px 20px;
+    background: radial-gradient(ellipse at top, #1a1500 0%, var(--bg) 60%);
+  }
+
+  .logo-area { text-align: center; margin-bottom: 20px; }
+  .logo-icon { font-size: 50px; margin-bottom: 10px; }
+  .logo-title { font-size: 28px; font-weight: 900; color: var(--yellow); }
+
+  .copy-box {
+    width: 100%; max-width: 350px; background: var(--surface2);
+    border: 2px dashed var(--yellow); border-radius: 15px;
+    padding: 15px; margin-bottom: 15px; text-align: center; cursor: pointer;
+  }
+  .copy-box span { display: block; font-size: 12px; color: var(--gray); }
+  .copy-box strong { font-size: 24px; color: #fff; }
+
+  .contact-btn {
+    width: 100%; max-width: 350px; background: var(--green);
+    color: #000; text-decoration: none; padding: 12px;
+    border-radius: 12px; font-weight: 700; display: flex;
+    align-items: center; justify-content: center; gap: 8px; margin-bottom: 20px;
+  }
+
+  .code-card { width: 100%; max-width: 350px; background: var(--surface); border: 1.5px solid var(--border); border-radius: 20px; padding: 20px; }
+  .code-input { width: 100%; background: var(--surface2); border: 2px solid var(--border); border-radius: 10px; padding: 12px; font-size: 20px; color: var(--yellow); text-align: center; margin-bottom: 10px; outline: none; }
+  .btn-enter { width: 100%; background: var(--yellow); border: none; border-radius: 10px; padding: 14px; font-weight: 900; cursor: pointer; }
+
+  #main-screen { display: none; flex-direction: column; min-height: 100vh; }
+  .app-header { background: var(--surface); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
+  
+  .clips-list { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  
+  .clip-item {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
+    padding: 15px; display: flex; align-items: center; gap: 12px;
+    cursor: pointer; transition: all 0.15s;
+  }
+  .clip-item:active { background: #222; transform: scale(0.99); }
+  
+  .clip-icon { font-size: 24px; margin-left: 10px; }
+  .clip-name { font-size: 16px; font-weight: 700; color: var(--white); flex: 1; }
+  .clip-arrow { color: var(--yellow); font-size: 20px; }
+
+  .btn-paste {
+    background: none; border: 1px solid var(--border); color: var(--gray);
+    padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 12px;
+    cursor: pointer;
+  }
+  
+  .top-contact {
+    background: #000; color: var(--yellow); padding: 8px; text-align: center;
+    border-bottom: 1px solid var(--border); font-weight: bold;
+  }
+  .top-contact a { color: var(--yellow); text-decoration: none; }
+</style>
+</head>
+<body>
+
+<div id="passcode-screen">
+  <div class="logo-area">
+    <div class="logo-icon">👑</div>
+    <div class="logo-title">حصريات حسو</div>
+  </div>
+
+  <div class="copy-box" onclick="copyOnlyCode()">
+    <span>إضغط هنا لنسخ الرمز</span>
+    <strong id="the-code">1234</strong>
+  </div>
+
+  <a href="https://t.me/xxnnn8" class="contact-btn" target="_blank">
+    <span>🟢</span> للتواصل معنا @xxnnn8
+  </a>
+
+  <div class="code-card">
+    <button class="btn-paste" onclick="pasteCode()">📋 لصق الرمز</button>
+    <input type="text" id="code-input" class="code-input" placeholder="ألصق الرمز هنا">
+    <button class="btn-enter" onclick="checkCode()">دخول</button>
+    <div id="error-msg" style="color:var(--danger); text-align:center; margin-top:10px; font-size:12px;"></div>
+  </div>
+</div>
+
+<div id="main-screen">
+  <div class="top-contact">
+    للتواصل معنا <a href="https://t.me/xxnnn8" target="_blank">@xxnnn8</a> 👑
+  </div>
+  <div class="app-header">
+    <button onclick="logout()" style="background:none; border:none; color:var(--gray); font-family:'Cairo';">خروج ⇤</button>
+    <div style="color:var(--yellow); font-weight:900;">حصريات حسو</div>
+    <div style="width:40px;"></div>
+  </div>
+  <div class="clips-list" id="clips-list"></div>
+</div>
+
+<script>
+  const CORRECT_CODE = "1234";
+  const API = "https://script.google.com/macros/s/AKfycbyX8NHivy6jol4eTMpBVFacJ7_V5sJtYupsNFQZfevy4KEnnqk5Ib9TiZ-C7LUaIhdP/exec";
+
+  let clipsData = [];
+
+  function copyOnlyCode() {
+    const code = document.getElementById('the-code').innerText;
+    navigator.clipboard.writeText(code).then(() => {
+      alert("تم نسخ الرمز: " + code);
+    }).catch(() => {
+      prompt("انسخ الرمز يدوياً:", code);
+    });
+  }
+
+  async function pasteCode() {
+    try {
+      const text = await navigator.clipboard.readText();
+      document.getElementById('code-input').value = text;
+    } catch (err) {
+      alert("تعذر اللصق تلقائياً، ألصقه يدوياً من فضلك.");
     }
-  })
-  .catch(err => {
-    document.getElementById('list').innerHTML = '❌ فشل: ' + err;
-  });
+  }
+
+  function checkCode() {
+    const val = document.getElementById('code-input').value.trim();
+    if (val === CORRECT_CODE) {
+      sessionStorage.setItem('huso_auth', 'true');
+      showApp();
+    } else {
+      document.getElementById('error-msg').textContent = "الرمز غير صحيح!";
+    }
+  }
+
+  function showApp() {
+    document.getElementById('passcode-screen').style.display = 'none';
+    document.getElementById('main-screen').style.display = 'flex';
+    loadData();
+  }
+
+  async function loadData() {
+    try {
+      const res = await fetch(API + '?t=' + new Date().getTime());
+      const data = await res.json();
+      
+      clipsData = data.filter(item => item.name && item.video);
+      render();
+    } catch (e) {
+      document.getElementById('clips-list').innerHTML = '<div style="text-align:center; padding:30px;">❌ فشل التحميل</div>';
+    }
+  }
+
+  function render() {
+    const list = document.getElementById('clips-list');
+    
+    if (clipsData.length === 0) {
+      list.innerHTML = '<div style="text-align:center; padding:30px;">🎬 لا توجد مقاطع</div>';
+      return;
+    }
+    
+    list.innerHTML = clipsData.map((item, i) => `
+      <div class="clip-item" onclick="playClip(${i})">
+        <span class="clip-icon">🎥</span>
+        <span class="clip-name">${item.name}</span>
+        <span class="clip-arrow">›</span>
+      </div>
+    `).join('');
+  }
+
+  function playClip(i) {
+    const link = clipsData[i].video;
+    if (link) {
+      window.open(link, '_blank');
+    }
+  }
+
+  function logout() {
+    sessionStorage.removeItem('huso_auth');
+    location.reload();
+  }
+
+  if (sessionStorage.getItem('huso_auth') === 'true') showApp();
 </script>
 </body>
 </html>
