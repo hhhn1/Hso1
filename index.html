@@ -53,30 +53,59 @@
   #main-screen { display: none; flex-direction: column; min-height: 100vh; }
   .app-header { background: var(--surface); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
   
-  .clips-grid { padding: 15px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
-  .clip-card {
-    background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
-    overflow: hidden; cursor: pointer; transition: all 0.2s;
-    display: flex; flex-direction: column;
+  /* 🔍 شريط البحث */
+  .search-box {
+    padding: 12px; background: var(--surface); border-bottom: 1px solid var(--border);
   }
-  .clip-card:active { transform: scale(0.95); background: #222; }
+  .search-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 15px; font-size: 14px;
+    color: var(--white); font-family: 'Cairo'; outline: none;
+  }
+  .search-input::placeholder { color: var(--gray); }
   
-  .clip-thumb {
-    width: 100%; height: 120px; background-color: #000;
-    background-size: cover; background-position: center;
-    display: flex; align-items: center; justify-content: center;
-    border-bottom: 1px solid var(--border);
+  /* 📊 شريط الإحصائيات */
+  .stats-bar {
+    padding: 8px 12px; background: var(--surface2); border-bottom: 1px solid var(--border);
+    display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px;
   }
-  .clip-thumb span { font-size: 30px; opacity: 0.7; }
+  .stat-item {
+    display: flex; align-items: center; gap: 5px; font-size: 12px;
+    background: var(--surface); padding: 5px 10px; border-radius: 20px;
+  }
   
-  .clip-name {
-    padding: 12px 8px; font-size: 13px; font-weight: 700;
-    text-align: center; color: var(--white);
+  .grid { padding: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  
+  .item {
+    background: var(--surface2); border: 1px solid var(--border); border-radius: 10px;
+    overflow: hidden; cursor: pointer; transition: all 0.15s; position: relative;
   }
+  .item:active { transform: scale(0.95); background: #222; }
+  
+  .item img { width: 100%; height: 120px; object-fit: cover; background: #000; }
+  
+  .item-info { padding: 8px; }
+  .item-title { display: block; font-size: 13px; font-weight: 700; text-align: center; margin-bottom: 5px; }
+  
+  /* 👁️ عداد المشاهدات + 📤 مشاركة */
+  .item-footer {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 5px 8px; border-top: 1px solid var(--border);
+  }
+  .views-count { font-size: 11px; color: var(--gray); display: flex; align-items: center; gap: 3px; }
+  .share-btn {
+    background: none; border: none; color: var(--yellow); font-size: 14px;
+    cursor: pointer; padding: 3px 5px;
+  }
+  .share-btn:active { opacity: 0.7; }
+  
+  .album-badge { background: var(--yellow); color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-right: 5px; }
+  .new-badge { background: var(--danger); color: white; font-size: 9px; padding: 2px 5px; border-radius: 4px; margin-right: 5px; }
 
   .btn-paste {
     background: none; border: 1px solid var(--border); color: var(--gray);
     padding: 8px 12px; border-radius: 8px; margin-bottom: 8px; font-size: 12px;
+    cursor: pointer;
   }
   
   .top-contact {
@@ -84,6 +113,34 @@
     border-bottom: 1px solid var(--border); font-weight: bold;
   }
   .top-contact a { color: var(--yellow); text-decoration: none; }
+
+  .video-modal {
+    position: fixed; inset: 0; background: #000; z-index: 9999;
+    display: none; align-items: center; justify-content: center;
+  }
+  .video-modal video { width: 100%; height: 100%; object-fit: contain; }
+  .close-video {
+    position: absolute; top: 15px; left: 15px; color: white;
+    background: rgba(0,0,0,0.5); padding: 8px 15px; border-radius: 20px;
+    cursor: pointer; font-size: 14px; z-index: 10;
+  }
+
+  .album-modal {
+    position: fixed; inset: 0; background: #0a0a0a; z-index: 9999;
+    display: none; flex-direction: column; overflow-y: auto;
+  }
+  .album-header {
+    background: var(--surface); padding: 15px; display: flex;
+    justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border);
+    position: sticky; top: 0; z-index: 10;
+  }
+  .album-content { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .album-video { width: 100%; border-radius: 10px; background: #000; }
+  .album-img { width: 100%; border-radius: 10px; cursor: pointer; }
+  
+  .no-results {
+    grid-column: 1/-1; text-align: center; padding: 30px; color: var(--gray);
+  }
 </style>
 </head>
 <body>
@@ -120,15 +177,44 @@
     <div style="color:var(--yellow); font-weight:900;">حصريات حسو</div>
     <div style="width:40px;"></div>
   </div>
-  <div class="clips-grid" id="clips-grid"></div>
+  
+  <!-- 🔍 شريط البحث -->
+  <div class="search-box">
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 بحث عن مقطع..." oninput="filterItems()">
+  </div>
+  
+  <!-- 📊 شريط الإحصائيات -->
+  <div class="stats-bar" id="statsBar">
+    <span class="stat-item">📊 <span id="totalCount">0</span> الكل</span>
+    <span class="stat-item">🎥 <span id="videoCount">0</span> فيديو</span>
+    <span class="stat-item">🖼️ <span id="imageCount">0</span> صورة</span>
+    <span class="stat-item">📁 <span id="albumCount">0</span> ألبوم</span>
+  </div>
+  
+  <div class="grid" id="grid"></div>
+</div>
+
+<div class="video-modal" id="videoModal" onclick="closeVideo()">
+  <span class="close-video">إغلاق ✕</span>
+  <video id="player" controls autoplay playsinline></video>
+</div>
+
+<div class="album-modal" id="albumModal">
+  <div class="album-header">
+    <button onclick="closeAlbum()" style="background:none; border:none; color:var(--gray); font-family:'Cairo';">✕ إغلاق</button>
+    <div style="color:var(--yellow); font-weight:900;" id="albumTitle">الألبوم</div>
+    <div style="width:40px;"></div>
+  </div>
+  <div class="album-content" id="albumContent"></div>
 </div>
 
 <script>
   const CORRECT_CODE = "1234";
-  // ✅ تم تحديث الرابط إلى الرابط الجديد الصحيح
-  const SHEET_URL = "https://script.google.com/macros/s/AKfycbzyZ0Lsjqz9p39DsoJ2nCeReMU9sx6es_bONa0bJ26mXVHo3CorpZ8gbPd4TH_SRJQr/exec";
+  const API = "https://script.google.com/macros/s/AKfycbzyZ0Lsjqz9p39DsoJ2nCeReMU9sx6es_bONa0bJ26mXVHo3CorpZ8gbPd4TH_SRJQr/exec";
 
-  let clipsData = [];
+  let dataList = [];
+  let filteredList = [];
+  let viewsData = JSON.parse(localStorage.getItem('clip_views') || '{}');
 
   function copyOnlyCode() {
     const code = document.getElementById('the-code').innerText;
@@ -165,67 +251,177 @@
   }
 
   async function loadData() {
-    const grid = document.getElementById('clips-grid');
-    grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; padding:20px; color: var(--yellow);">⏳ جاري التحميل...</div>';
-    
     try {
-      const res = await fetch(SHEET_URL + '?t=' + new Date().getTime());
-      if (!res.ok) throw new Error("خطأ في الاتصال بالسيرفر");
-      
+      const res = await fetch(API + '?t=' + new Date().getTime());
       const data = await res.json();
       
-      let rows = [];
-      if (Array.isArray(data)) {
-        rows = data;
-      } else if (data.data && Array.isArray(data.data)) {
-        rows = data.data;
-      } else {
-        throw new Error("تنسيق البيانات غير مدعوم");
-      }
+      let rows = Array.isArray(data) ? data : (data.data || []);
 
-      clipsData = rows.map(r => ({
-        name: r.name || r[0] || "مقطع",
-        link: r.link || r[1] || "#",
-        thumbnail: r.thumbnail || r[2] || ""
-      })).filter(c => c.name && c.link && c.link !== "#");
+      dataList = rows.map((r, i) => {
+        let raw = r.video || r[1] || "";
+        let isAlbum = raw.includes("-");
+        let isVideo = !isAlbum && (raw.endsWith('.mp4') || raw.endsWith('.mov'));
+        let isImage = !isAlbum && (raw.endsWith('.jpg') || raw.endsWith('.png') || raw.endsWith('.jpeg'));
+        
+        return {
+          id: 'clip_' + i,
+          name: r.name || r[0] || "مقطع " + (i + 1),
+          video: raw,
+          thumb: r.thumb || r[2] || "",
+          isAlbum: isAlbum,
+          isVideo: isVideo,
+          isImage: isImage,
+          views: viewsData['clip_' + i] || 0
+        };
+      }).filter(x => x.video);
 
+      filteredList = [...dataList];
       render();
+      updateStats();
     } catch (e) {
       console.error(e);
-      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color: var(--danger);">❌ فشل التحميل. تأكد من ترتيب الـ Sheet.</div>';
+      document.getElementById('grid').innerHTML = '<div class="no-results">❌ فشل التحميل</div>';
     }
+  }
+
+  function updateStats() {
+    const total = dataList.length;
+    const videos = dataList.filter(d => d.isVideo).length;
+    const images = dataList.filter(d => d.isImage).length;
+    const albums = dataList.filter(d => d.isAlbum).length;
+    
+    document.getElementById('totalCount').textContent = total;
+    document.getElementById('videoCount').textContent = videos;
+    document.getElementById('imageCount').textContent = images;
+    document.getElementById('albumCount').textContent = albums;
+  }
+
+  function filterItems() {
+    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+    
+    if (searchTerm === '') {
+      filteredList = [...dataList];
+    } else {
+      filteredList = dataList.filter(item => 
+        item.name.toLowerCase().includes(searchTerm)
+      );
+    }
+    
+    render();
   }
 
   function render() {
-    const grid = document.getElementById('clips-grid');
-    if (clipsData.length === 0) {
-      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center;">🎬 لا توجد مقاطع مضافة</div>';
+    let grid = document.getElementById("grid");
+    
+    if (filteredList.length === 0) {
+      grid.innerHTML = '<div class="no-results">🔍 لا توجد نتائج للبحث</div>';
       return;
     }
-    
-    grid.innerHTML = clipsData.map((clip, i) => {
-      const bgStyle = clip.thumbnail && clip.thumbnail.startsWith('http') 
-        ? `background-image: url('${clip.thumbnail}');` 
-        : '';
+
+    grid.innerHTML = filteredList.map((item, idx) => {
+      const originalIndex = dataList.findIndex(d => d.id === item.id);
       
       return `
-        <div class="clip-card" onclick="playClip(${i})">
-          <div class="clip-thumb" style="${bgStyle}">
-            ${!bgStyle ? '<span>🎥</span>' : ''}
+        <div class="item" onclick="openItem(${originalIndex})">
+          ${item.thumb ? `<img src="${item.thumb}">` : `<img src="https://via.placeholder.com/300x200/1a1a1a/f5c518?text=🎬">`}
+          <div class="item-info">
+            <span class="item-title">
+              ${item.isAlbum ? '<span class="album-badge">📁 ألبوم</span>' : ''}
+              ${item.name}
+            </span>
           </div>
-          <div class="clip-name">${clip.name}</div>
+          <div class="item-footer">
+            <span class="views-count">👁️ ${item.views}</span>
+            <button class="share-btn" onclick="event.stopPropagation(); shareItem('${item.id}')" title="مشاركة">📤</button>
+          </div>
         </div>
       `;
-    }).join('');
+    }).join("");
   }
 
-  function playClip(i) {
-    const link = clipsData[i].link;
-    if (link && link !== "#") {
-      window.open(link, '_blank');
+  function addView(itemId) {
+    viewsData[itemId] = (viewsData[itemId] || 0) + 1;
+    localStorage.setItem('clip_views', JSON.stringify(viewsData));
+    
+    const item = dataList.find(d => d.id === itemId);
+    if (item) item.views = viewsData[itemId];
+    render();
+  }
+
+  function shareItem(itemId) {
+    const item = dataList.find(d => d.id === itemId);
+    if (!item) return;
+    
+    const shareText = `🎬 ${item.name}\n\nلمشاهدة المزيد تابعنا على تيليجرام:\n@xxnnn8 👑`;
+    
+    if (navigator.share) {
+      navigator.share({
+        title: item.name,
+        text: shareText,
+      }).catch(() => {});
     } else {
-      alert("الرابط غير متوفر.");
+      navigator.clipboard.writeText(shareText).then(() => {
+        alert('تم نسخ معلومات المقطع مع حقوق @xxnnn8');
+      });
     }
+  }
+
+  function openItem(i) {
+    let item = dataList[i];
+    addView(item.id);
+
+    // 📁 ألبوم
+    if (item.isAlbum) {
+      let vids = item.video.split("-").filter(v => v.trim());
+      document.getElementById('albumTitle').textContent = item.name;
+      
+      let content = document.getElementById('albumContent');
+      content.innerHTML = vids.map(v => {
+        let trimmed = v.trim();
+        let isVideo = trimmed.endsWith('.mp4') || trimmed.endsWith('.mov');
+        if (isVideo) {
+          return `<video src="${trimmed}" controls class="album-video" playsinline></video>`;
+        } else {
+          return `<img src="${trimmed}" class="album-img" onclick="showImage('${trimmed}')">`;
+        }
+      }).join('');
+      
+      document.getElementById('albumModal').style.display = 'flex';
+      return;
+    }
+
+    // 🖼️ صورة
+    if (item.isImage) {
+      showImage(item.video);
+      return;
+    }
+
+    // 🎥 فيديو
+    let modal = document.getElementById("videoModal");
+    let player = document.getElementById("player");
+    player.src = item.video;
+    modal.style.display = "flex";
+  }
+
+  function showImage(src) {
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed; inset:0; background:#000; z-index:99999; display:flex; align-items:center; justify-content:center;';
+    modal.innerHTML = `<img src="${src}" style="max-width:100%; max-height:100%; object-fit:contain;" onclick="this.parentElement.remove()">`;
+    document.body.appendChild(modal);
+    modal.onclick = () => modal.remove();
+  }
+
+  function closeVideo() {
+    let modal = document.getElementById("videoModal");
+    let player = document.getElementById("player");
+    player.pause();
+    player.src = "";
+    modal.style.display = "none";
+  }
+
+  function closeAlbum() {
+    document.getElementById('albumModal').style.display = 'none';
+    document.getElementById('albumContent').innerHTML = '';
   }
 
   function logout() {
