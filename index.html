@@ -15,7 +15,7 @@ body{
   color:#fff;
 }
 
-/* 🔐 LOGIN */
+/* login */
 #login{
   min-height:100vh;
   display:flex;
@@ -46,7 +46,6 @@ body{
   border:none;
   border-radius:10px;
   font-weight:900;
-  cursor:pointer;
 }
 
 .copy{background:#f5c518;color:#000;}
@@ -62,26 +61,9 @@ body{
   border:2px solid #222;
   background:#1a1a1a;
   color:#fff;
-  outline:none;
 }
 
-/* ✨ انيميشن */
-.fade-out{
-  opacity:0;
-  transform:scale(0.95);
-  transition:0.4s;
-}
-
-.fade-in{
-  animation:show 0.6s ease forwards;
-}
-
-@keyframes show{
-  from{opacity:0;transform:translateY(25px);}
-  to{opacity:1;transform:translateY(0);}
-}
-
-/* 📁 APP */
+/* app */
 #app{
   display:none;
 }
@@ -94,7 +76,6 @@ body{
   border-bottom:1px solid #222;
 }
 
-/* 🔥 زر التواصل */
 .contact{
   margin:10px;
   padding:12px;
@@ -105,16 +86,46 @@ body{
   color:#000;
 }
 
-.contact a{
-  color:#000;
-  text-decoration:none;
+/* grid */
+.grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:10px;
+  padding:10px;
+}
+
+.card{
+  background:#1a1a1a;
+  border-radius:12px;
+  overflow:hidden;
+}
+
+.card img{
+  width:100%;
+  height:140px;
+  object-fit:cover;
+}
+
+.card div{
+  padding:8px;
+  font-size:13px;
+}
+
+/* animation */
+.fade-in{
+  animation:show .5s ease forwards;
+}
+
+@keyframes show{
+  from{opacity:0;transform:translateY(20px);}
+  to{opacity:1;transform:translateY(0);}
 }
 </style>
 </head>
 
 <body>
 
-<!-- 🔐 LOGIN -->
+<!-- LOGIN -->
 <div id="login">
 
   <div class="title">حصريات حسو</div>
@@ -122,7 +133,6 @@ body{
   <div class="code" onclick="copy()">1234</div>
 
   <button class="btn copy" onclick="copy()">نسخ</button>
-
   <button class="btn paste" onclick="paste()">لصق</button>
 
   <input id="code" class="input" placeholder="كلمة المرور">
@@ -131,7 +141,7 @@ body{
 
 </div>
 
-<!-- 📁 APP -->
+<!-- APP -->
 <div id="app">
 
   <div class="header">
@@ -140,21 +150,28 @@ body{
     <div></div>
   </div>
 
-  <!-- 🔥 التواصل الجديد -->
   <div class="contact">
-    <a href="https://t.me/xxnnn8" target="_blank">
+    <a href="https://t.me/xxnnn8" style="color:#000;text-decoration:none;">
       للتواصل معنا @xxnnn8
     </a>
   </div>
+
+  <div class="grid" id="grid"></div>
 
 </div>
 
 <script>
 
+const API="https://script.google.com/macros/s/AKfycbxOiUTM6SaheW9uf_5uIECabsMxSDoniDF5MeXGL1Q5hm1M7e05RaCs6PIwqU6G5UtZ/exec";
+
+let cache=[];
+
+/* safe copy */
 function copy(){
   navigator.clipboard.writeText("1234");
 }
 
+/* paste */
 async function paste(){
   try{
     const t=await navigator.clipboard.readText();
@@ -162,20 +179,138 @@ async function paste(){
   }catch(e){}
 }
 
+/* enter */
 function enter(){
 
-  if(document.getElementById("code").value!=="1234")return;
+  if(document.getElementById("code").value!=="1234") return;
 
-  const login=document.getElementById("login");
-  const app=document.getElementById("app");
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
 
-  login.classList.add("fade-out");
+  load();
+}
 
-  setTimeout(()=>{
-    login.style.display="none";
-    app.style.display="block";
-    app.classList.add("fade-in");
-  },400);
+/* 🔥 SAFE LOAD (ما يطيح الصفحة) */
+async function load(){
+
+  try{
+
+    const res=await fetch(API+"?t="+Date.now());
+    let data=await res.json();
+
+    if(!Array.isArray(data)) data=[];
+
+    cache=data.map(x=>{
+
+      // يدعم أي شكل شيت بدون ما ينهار
+      let name = x.name || x.Name || "بدون اسم";
+
+      let raw = x.video || x.videos || x.links || "";
+
+      let links = String(raw)
+        .split(" - ")
+        .map(v=>v.trim())
+        .filter(v=>v.length>0);
+
+      return{
+        name,
+        cover: x.cover || links[0],
+        links
+      };
+
+    }).filter(a=>a.links.length>0);
+
+    render();
+
+  }catch(e){
+
+    console.log("API ERROR",e);
+
+    document.getElementById("grid").innerHTML=
+    "<div style='padding:20px'>⚠️ خطأ تحميل البيانات</div>";
+
+  }
+}
+
+/* render */
+function render(){
+
+  document.getElementById("grid").innerHTML=
+  cache.map((a,i)=>`
+
+    <div class="card" onclick="openAlbum(${i})">
+      <img src="${a.cover}">
+      <div>${a.name}</div>
+    </div>
+
+  `).join("");
+
+}
+
+/* viewer */
+function openAlbum(i){
+
+  const a=cache[i];
+  let index=0;
+
+  const m=document.createElement("div");
+  m.style.cssText="position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;";
+
+  m.innerHTML=`
+    <div style="padding:15px;color:#f5c518;display:flex;justify-content:space-between;">
+      <div>${a.name}</div>
+      <button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#fff;font-size:20px;">✕</button>
+    </div>
+
+    <div style="flex:1;display:flex;align-items:center;justify-content:center;">
+      <img id="img" src="${a.links[0]}" style="max-width:100%;max-height:90vh;border-radius:10px;">
+    </div>
+
+    <div style="display:flex;justify-content:space-between;padding:15px;">
+      <button id="prev">◀</button>
+      <button id="next">▶</button>
+    </div>
+  `;
+
+  document.body.appendChild(m);
+
+  const img=m.querySelector("#img");
+
+  function update(){
+    img.src=a.links[index];
+  }
+
+  m.querySelector("#next").onclick=()=>{
+    index=(index+1)%a.links.length;
+    update();
+  };
+
+  m.querySelector("#prev").onclick=()=>{
+    index=(index-1+a.links.length)%a.links.length;
+    update();
+  };
+
+  /* swipe */
+  let sx=0;
+
+  img.addEventListener("touchstart",e=>{
+    sx=e.touches[0].clientX;
+  });
+
+  img.addEventListener("touchend",e=>{
+    let ex=e.changedTouches[0].clientX;
+
+    if(sx-ex>50){
+      index=(index+1)%a.links.length;
+      update();
+    }
+
+    if(ex-sx>50){
+      index=(index-1+a.links.length)%a.links.length;
+      update();
+    }
+  });
+
 }
 
 </script>
