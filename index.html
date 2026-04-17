@@ -12,9 +12,7 @@
   --bg:#0a0a0a;
   --surface:#111;
   --surface2:#1a1a1a;
-  --border:#222;
   --yellow:#f5c518;
-  --white:#fff;
   --gray:#888;
 }
 
@@ -23,282 +21,208 @@
 body{
   font-family:'Cairo',sans-serif;
   background:var(--bg);
-  color:var(--white);
+  color:#fff;
 }
 
-/* الدخول */
-#passcode-screen{
+/* 🔐 شاشة الدخول */
+#login{
   min-height:100vh;
   display:flex;
   flex-direction:column;
-  align-items:center;
   justify-content:center;
+  align-items:center;
+  gap:20px;
   padding:20px;
 }
 
-.logo-title{
-  font-size:28px;
+/* الرقم الكبير */
+.code-big{
+  font-size:60px;
   font-weight:900;
   color:var(--yellow);
-  margin-bottom:15px;
+  cursor:pointer;
+  user-select:none;
 }
 
-/* زر لصق */
-.paste-btn{
+/* زر لصق يمين */
+.top-bar{
   width:100%;
   max-width:350px;
-  padding:12px;
-  margin-bottom:10px;
+  display:flex;
+  justify-content:flex-end;
+}
+
+.paste-btn{
   background:var(--yellow);
-  color:#000;
   border:none;
+  padding:10px 15px;
   border-radius:10px;
   font-weight:900;
   cursor:pointer;
 }
 
-.code-card{
+/* زر دخول */
+.enter-btn{
   width:100%;
   max-width:350px;
-  background:var(--surface);
-  border:1px solid var(--border);
-  border-radius:15px;
-  padding:15px;
-}
-
-.code-input{
-  width:100%;
-  padding:12px;
-  text-align:center;
-  font-size:18px;
-  border-radius:10px;
-  border:2px solid var(--border);
-  background:var(--surface2);
-  color:var(--yellow);
-  margin-bottom:10px;
-}
-
-.btn-enter{
-  width:100%;
   padding:14px;
-  background:var(--yellow);
   border:none;
-  border-radius:10px;
+  background:var(--yellow);
   font-weight:900;
+  border-radius:10px;
 }
 
 /* التطبيق */
-#main-screen{
+#app{
   display:none;
 }
 
-/* 🔥 زر التواصل الذهبي */
-.contact-box{
-  margin:10px 12px;
+/* الهيدر */
+.header{
+  padding:15px;
+  display:flex;
+  justify-content:space-between;
+  background:#111;
+  border-bottom:1px solid #222;
+}
+
+/* زر تواصل */
+.contact{
+  margin:10px;
   background:var(--yellow);
   color:#000;
+  padding:12px;
   text-align:center;
-  padding:14px;
-  font-size:16px;
   font-weight:900;
   border-radius:12px;
 }
 
-/* الهيدر */
-.app-header{
-  background:var(--surface);
-  padding:15px;
-  display:flex;
-  justify-content:space-between;
-  border-bottom:1px solid var(--border);
-}
-
 /* الشبكة */
-.albums-list{
-  padding:12px;
+.grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
   gap:10px;
-}
-
-/* كرت */
-.album-item{
-  background:var(--surface2);
-  border-radius:14px;
-  overflow:hidden;
-  border:1px solid var(--border);
-}
-
-.album-thumb{
-  width:100%;
-  height:140px;
-}
-
-.album-thumb img{
-  width:100%;
-  height:100%;
-  object-fit:cover;
-}
-
-.album-info{
   padding:10px;
 }
 
-.album-name{
-  font-weight:800;
+.card{
+  background:#1a1a1a;
+  border-radius:12px;
+  overflow:hidden;
 }
 
-.album-meta{
-  font-size:12px;
-  color:var(--gray);
+.card img{
+  width:100%;
+  height:140px;
+  object-fit:cover;
+}
+
+.card div{
+  padding:8px;
+  font-weight:800;
 }
 </style>
 </head>
 
 <body>
 
-<!-- الدخول -->
-<div id="passcode-screen">
+<!-- 🔐 شاشة الدخول -->
+<div id="login">
 
-  <div class="logo-title">حصريات حسو</div>
-
-  <!-- 🔥 زر لصق -->
-  <button class="paste-btn" onclick="pasteCode()">📋 لصق الرمز</button>
-
-  <div class="code-card">
-    <input id="code-input" class="code-input" placeholder="أدخل الرمز">
-    <button class="btn-enter" onclick="checkCode()">دخول</button>
+  <!-- زر لصق يمين -->
+  <div class="top-bar">
+    <button class="paste-btn" onclick="pasteCode()">📋 لصق</button>
   </div>
+
+  <!-- الرقم الكبير -->
+  <div class="code-big" onclick="copyCode()">1234</div>
+
+  <!-- دخول -->
+  <button class="enter-btn" onclick="enter()">دخول</button>
 
 </div>
 
-<!-- التطبيق -->
-<div id="main-screen">
+<!-- 📁 التطبيق -->
+<div id="app">
 
-  <div class="app-header">
+  <div class="header">
     <div>@xxnnn8</div>
-    <div style="color:var(--yellow);font-weight:900;">حصريات حسو</div>
+    <div style="color:#f5c518;font-weight:900;">حصريات حسو</div>
     <div></div>
   </div>
 
-  <!-- 🔥 زر التواصل الذهبي -->
-  <div class="contact-box">
-    للتواصل معنا @xxnnn8
-  </div>
+  <div class="contact">للتواصل معنا @xxnnn8</div>
 
-  <div class="albums-list" id="albumsList"></div>
+  <div class="grid" id="grid"></div>
 
 </div>
 
 <script>
 
-const CORRECT_CODE = "1234";
 const API = "https://script.google.com/macros/s/AKfycbxOiUTM6SaheW9uf_5uIECabsMxSDoniDF5MeXGL1Q5hm1M7e05RaCs6PIwqU6G5UtZ/exec";
 
 let cache = null;
-let allAlbums = [];
 
-function checkCode(){
-  if(document.getElementById("code-input").value === CORRECT_CODE){
-    sessionStorage.setItem("auth","1");
-    showApp();
-  }
+/* نسخ الرقم */
+function copyCode(){
+  navigator.clipboard.writeText("1234");
 }
 
-/* 🔥 زر لصق */
+/* لصق */
 async function pasteCode(){
   try{
-    const text = await navigator.clipboard.readText();
-    document.getElementById("code-input").value = text;
+    const t = await navigator.clipboard.readText();
+    if(t.trim()==="1234"){
+      enter();
+    }
   }catch(e){
     alert("انسخه يدوياً");
   }
 }
 
-function showApp(){
-  document.getElementById("passcode-screen").style.display="none";
-  document.getElementById("main-screen").style.display="block";
-  loadData();
+/* دخول */
+function enter(){
+  document.getElementById("login").style.display="none";
+  document.getElementById("app").style.display="block";
+  load();
 }
 
-/* ⚡ تحميل سريع جداً */
-async function loadData(){
+/* ⚡ تحميل لحظي */
+async function load(){
 
   if(cache){
-    allAlbums = cache;
-    render();
+    render(cache);
     return;
   }
 
-  try{
-    const res = await fetch(API + "?t=" + Date.now());
-    const data = await res.json();
+  const res = await fetch(API + "?t=" + Date.now());
+  const data = await res.json();
 
-    cache = data.map(item=>{
-      const links = (item.video || "").split(" - ");
-      return {
-        name:item.name,
-        links:links,
-        count:links.length,
-        cover:item.cover || links[0]
-      };
-    });
+  cache = data.map(x=>{
+    const links = (x.video||"").split(" - ");
+    return {
+      name:x.name,
+      cover: x.cover || links[0],
+      count:links.length
+    };
+  });
 
-    allAlbums = cache;
-    render();
-
-  }catch(e){
-    document.getElementById("albumsList").innerHTML =
-      "<div style='text-align:center;color:#888;padding:30px'>فشل التحميل</div>";
-  }
+  render(cache);
 }
 
 /* عرض سريع */
-function render(){
-  let html="";
-
-  for(let i=0;i<allAlbums.length;i++){
-    const a = allAlbums[i];
-
-    html += `
-      <div class="album-item" onclick="openAlbum(${i})">
-
-        <div class="album-thumb">
-          <img loading="lazy" src="${a.cover}">
-        </div>
-
-        <div class="album-info">
-          <div class="album-name">${a.name}</div>
-          <div class="album-meta">${a.count} مقاطع • @xxnnn8</div>
-        </div>
-
+function render(data){
+  document.getElementById("grid").innerHTML =
+    data.map((a,i)=>`
+      <div class="card">
+        <img loading="lazy" src="${a.cover}">
+        <div>${a.name}<br><span style="color:#888;font-size:12px">${a.count} مقاطع</span></div>
       </div>
-    `;
-  }
-
-  document.getElementById("albumsList").innerHTML = html;
+    `).join("");
 }
 
-/* فتح الألبوم */
-function openAlbum(i){
-  const a = allAlbums[i];
-
-  const modal = document.createElement("div");
-  modal.style="position:fixed;inset:0;background:#000;z-index:9999;overflow:auto;padding:10px";
-
-  modal.innerHTML = `
-    <button onclick="this.parentElement.remove()" style="color:#fff">إغلاق</button>
-    <h3 style="color:#f5c518">${a.name}</h3>
-
-    ${a.links.map(l=>`
-      <video src="${l}" controls style="width:100%;margin:5px 0;border-radius:10px"></video>
-    `).join("")}
-  `;
-
-  document.body.appendChild(modal);
-}
-
-if(sessionStorage.getItem("auth")==="1") showApp();
+/* تشغيل تلقائي إذا داخل */
+if(sessionStorage.getItem("auth")==="1") enter();
 
 </script>
 
