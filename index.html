@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>حصريات حسو</title>
+<title>nayalbum</title>
 <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
 <style>
   :root {
@@ -14,13 +14,14 @@
     --yellow: #f5c518;
     --white: #ffffff;
     --gray: #888888;
-    --danger: #e04444;
     --green: #2ecc71;
+    --danger: #e04444;
   }
 
   * { margin: 0; padding: 0; box-sizing: border-box; }
-  body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; overflow-x: hidden; }
+  body { font-family: 'Cairo', sans-serif; background: var(--bg); color: var(--white); min-height: 100vh; }
 
+  /* شاشة الرمز */
   #passcode-screen {
     min-height: 100vh; display: flex; flex-direction: column;
     align-items: center; justify-content: center; padding: 24px 20px;
@@ -51,20 +52,68 @@
   .btn-enter { width: 100%; background: var(--yellow); border: none; border-radius: 10px; padding: 14px; font-weight: 900; cursor: pointer; }
 
   #main-screen { display: none; flex-direction: column; min-height: 100vh; }
-  .app-header { background: var(--surface); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
   
-  .clips-list { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  .app-header {
+    background: var(--surface); padding: 15px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
   
-  .clip-item {
+  .main-title {
+    padding: 15px; background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .main-title h2 { color: var(--yellow); font-size: 20px; display: flex; align-items: center; gap: 8px; }
+  .main-title p { color: var(--gray); font-size: 14px; margin-top: 5px; }
+  
+  .search-box {
+    padding: 12px 15px; background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .search-input {
+    width: 100%; background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px 15px; font-size: 14px;
+    color: var(--white); font-family: 'Cairo'; outline: none;
+  }
+  .search-input::placeholder { color: var(--gray); }
+  
+  .categories {
+    padding: 12px 15px; background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    display: flex; gap: 8px; overflow-x: auto; white-space: nowrap;
+  }
+  .category {
+    background: var(--surface2); color: var(--white);
+    padding: 8px 16px; border-radius: 20px; font-size: 13px;
+    border: 1px solid var(--border); cursor: pointer;
+    transition: all 0.2s;
+  }
+  .category.active { background: var(--yellow); color: #000; border-color: var(--yellow); }
+  
+  .albums-list { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
+  
+  .album-item {
     background: var(--surface2); border: 1px solid var(--border); border-radius: 12px;
-    padding: 15px; display: flex; align-items: center; gap: 12px;
+    padding: 12px; display: flex; align-items: center; gap: 12px;
     cursor: pointer; transition: all 0.15s;
   }
-  .clip-item:active { background: #222; transform: scale(0.99); }
+  .album-item:active { background: #222; transform: scale(0.99); }
   
-  .clip-icon { font-size: 24px; margin-left: 10px; }
-  .clip-name { font-size: 16px; font-weight: 700; color: var(--white); flex: 1; }
-  .clip-arrow { color: var(--yellow); font-size: 20px; }
+  .album-thumb {
+    width: 55px; height: 55px; background-color: #000; border-radius: 8px;
+    background-size: cover; background-position: center;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+  .album-thumb span { font-size: 22px; opacity: 0.7; }
+  
+  .album-info { flex: 1; }
+  .album-name { font-size: 15px; font-weight: 700; color: var(--white); margin-bottom: 4px; }
+  .album-meta { display: flex; align-items: center; gap: 10px; }
+  .album-count { font-size: 12px; color: var(--gray); }
+  .album-channel { font-size: 11px; color: var(--yellow); }
+  
+  .album-arrow { color: var(--yellow); font-size: 20px; }
 
   .btn-paste {
     background: none; border: 1px solid var(--border); color: var(--gray);
@@ -84,7 +133,7 @@
 <div id="passcode-screen">
   <div class="logo-area">
     <div class="logo-icon">👑</div>
-    <div class="logo-title">حصريات حسو</div>
+    <div class="logo-title">nayalbum</div>
   </div>
 
   <div class="copy-box" onclick="copyOnlyCode()">
@@ -92,8 +141,8 @@
     <strong id="the-code">1234</strong>
   </div>
 
-  <a href="https://t.me/xxnnn8" class="contact-btn" target="_blank">
-    <span>🟢</span> للتواصل معنا @xxnnn8
+  <a href="https://t.me/nudesksa4" class="contact-btn" target="_blank">
+    <span>🟢</span> للتواصل معنا @nudesksa4
   </a>
 
   <div class="code-card">
@@ -105,23 +154,34 @@
 </div>
 
 <div id="main-screen">
-  <div class="top-contact">
-    للتواصل معنا <a href="https://t.me/xxnnn8" target="_blank">@xxnnn8</a> 👑
-  </div>
   <div class="app-header">
-    <button onclick="logout()" style="background:none; border:none; color:var(--gray); font-family:'Cairo';">خروج ⇤</button>
-    <div style="color:var(--yellow); font-weight:900;">حصريات حسو</div>
+    <button onclick="logout()" style="background:none; border:none; color:var(--gray); font-family:'Cairo';">إغلاق</button>
+    <div style="color:var(--yellow); font-weight:900;">nayalbum</div>
     <div style="width:40px;"></div>
   </div>
-  <div class="clips-list" id="clips-list"></div>
+  
+  <div class="main-title">
+    <h2>📁 الألبومات <span style="font-size:14px; color:var(--gray); font-weight:normal;" id="totalAlbums"></span></h2>
+    <p>@nudesksa4</p>
+  </div>
+  
+  <div class="search-box">
+    <input type="text" id="searchInput" class="search-input" placeholder="🔍 ابحث عن ألبوم...">
+  </div>
+  
+  <div class="categories" id="categoriesList">
+    <span class="category active" data-cat="all">الكل</span>
+  </div>
+  
+  <div class="albums-list" id="albumsList"></div>
 </div>
 
 <script>
   const CORRECT_CODE = "1234";
-  // ✅ الرابط الجديد هنا
   const API = "https://script.google.com/macros/s/AKfycbxOiUTM6SaheW9uf_5uIECabsMxSDoniDF5MeXGL1Q5hm1M7e05RaCs6PIwqU6G5UtZ/exec";
 
-  let clipsData = [];
+  let allAlbums = [];
+  let categories = [];
 
   function copyOnlyCode() {
     const code = document.getElementById('the-code').innerText;
@@ -144,7 +204,7 @@
   function checkCode() {
     const val = document.getElementById('code-input').value.trim();
     if (val === CORRECT_CODE) {
-      sessionStorage.setItem('huso_auth', 'true');
+      sessionStorage.setItem('nayalbum_auth', 'true');
       showApp();
     } else {
       document.getElementById('error-msg').textContent = "الرمز غير صحيح!";
@@ -162,58 +222,121 @@
       const res = await fetch(API + '?t=' + new Date().getTime());
       const data = await res.json();
       
-      clipsData = data.filter(item => item.name && item.video);
-      render();
+      allAlbums = data.filter(item => item.name && item.video).map(item => {
+        const links = item.video.split(' - ');
+        return {
+          name: item.name,
+          links: links,
+          count: links.length,
+          category: item.category || 'أخرى'
+        };
+      });
+      
+      extractCategories();
+      renderCategories();
+      renderAlbums('all');
     } catch (e) {
-      document.getElementById('clips-list').innerHTML = '<div style="text-align:center; padding:30px;">❌ فشل التحميل</div>';
+      document.getElementById('albumsList').innerHTML = '<div style="text-align:center; padding:30px;">❌ فشل التحميل</div>';
     }
   }
 
-  function render() {
-    const list = document.getElementById('clips-list');
+  function extractCategories() {
+    const cats = allAlbums.map(a => a.category);
+    categories = ['all', ...new Set(cats)];
+  }
+
+  function renderCategories() {
+    const container = document.getElementById('categoriesList');
+    const catNames = { 'all': 'الكل' };
     
-    if (clipsData.length === 0) {
-      list.innerHTML = '<div style="text-align:center; padding:30px;">🎬 لا توجد مقاطع</div>';
+    container.innerHTML = categories.map(cat => `
+      <span class="category ${cat === 'all' ? 'active' : ''}" data-cat="${cat}">
+        ${catNames[cat] || cat}
+      </span>
+    `).join('');
+    
+    container.querySelectorAll('.category').forEach(el => {
+      el.addEventListener('click', () => {
+        container.querySelectorAll('.category').forEach(c => c.classList.remove('active'));
+        el.classList.add('active');
+        renderAlbums(el.dataset.cat);
+      });
+    });
+  }
+
+  function renderAlbums(category) {
+    const list = document.getElementById('albumsList');
+    const totalSpan = document.getElementById('totalAlbums');
+    
+    let filtered = category === 'all' 
+      ? allAlbums 
+      : allAlbums.filter(a => a.category === category);
+    
+    totalSpan.textContent = `${filtered.length} ألبوم`;
+    
+    if (filtered.length === 0) {
+      list.innerHTML = '<div style="text-align:center; padding:30px; color:var(--gray);">🎬 لا توجد ألبومات</div>';
       return;
     }
     
-    list.innerHTML = clipsData.map((item, i) => `
-      <div class="clip-item" onclick="playClip(${i})">
-        <span class="clip-icon">📁</span>
-        <span class="clip-name">${item.name}</span>
-        <span class="clip-arrow">›</span>
+    // تخزين الألبومات المصفاة في متغير عام عشان نستخدمه في openAlbum
+    window.currentFiltered = filtered;
+    
+    list.innerHTML = filtered.map((album, i) => `
+      <div class="album-item" onclick="openAlbum(${i})" data-name="${album.name}">
+        <div class="album-thumb"><span>📁</span></div>
+        <div class="album-info">
+          <div class="album-name">${album.name}</div>
+          <div class="album-meta">
+            <span class="album-count">${album.count} مقاطع</span>
+            <span class="album-channel">@nudesksa4</span>
+          </div>
+        </div>
+        <div class="album-arrow">›</div>
       </div>
     `).join('');
   }
 
-  function playClip(i) {
-    const links = clipsData[i].video.split(' - ');
+  function openAlbum(index) {
+    const album = window.currentFiltered[index];
     
-    // نافذة منبثقة لعرض محتويات الألبوم
     const modal = document.createElement('div');
     modal.style.cssText = 'position:fixed; inset:0; background:#0a0a0a; z-index:9999; overflow-y:auto; padding:15px;';
     modal.innerHTML = `
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
-        <h3 style="color:#f5c518;">${clipsData[i].name}</h3>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; position:sticky; top:0; background:#0a0a0a; padding-bottom:10px;">
+        <h3 style="color:#f5c518;">${album.name}</h3>
         <button onclick="this.parentElement.parentElement.remove()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">✕</button>
       </div>
-      ${links.map(link => {
+      <p style="color:#888; margin-bottom:15px;">@nudesksa4 • ${album.count} مقاطع</p>
+      ${album.links.map(link => {
         let trimmed = link.trim();
         let isVideo = trimmed.endsWith('.mp4') || trimmed.endsWith('.mov');
         return isVideo 
-          ? `<video src="${trimmed}" controls style="width:100%; margin-bottom:10px; border-radius:10px;"></video>`
-          : `<img src="${trimmed}" style="width:100%; margin-bottom:10px; border-radius:10px;">`;
+          ? `<video src="${trimmed}" controls style="width:100%; margin-bottom:10px; border-radius:10px; background:#000;"></video>`
+          : `<img src="${trimmed}" style="width:100%; margin-bottom:10px; border-radius:10px;" onclick="window.open('${trimmed}')">`;
       }).join('')}
     `;
     document.body.appendChild(modal);
   }
 
   function logout() {
-    sessionStorage.removeItem('huso_auth');
+    sessionStorage.removeItem('nayalbum_auth');
     location.reload();
   }
 
-  if (sessionStorage.getItem('huso_auth') === 'true') showApp();
+  // البحث
+  document.addEventListener('input', (e) => {
+    if (e.target.id === 'searchInput') {
+      const term = e.target.value.toLowerCase();
+      const items = document.querySelectorAll('.album-item');
+      items.forEach(item => {
+        const name = item.dataset.name?.toLowerCase() || '';
+        item.style.display = name.includes(term) ? 'flex' : 'none';
+      });
+    }
+  });
+
+  if (sessionStorage.getItem('nayalbum_auth') === 'true') showApp();
 </script>
 </body>
 </html>
