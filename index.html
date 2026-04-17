@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>CLIPS ZONE</title>
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0a;
+    --surface: #111111;
+    --surface2: #1a1a1a;
+    --border: #222222;
+    --yellow: #f5c518;
+    --yellow-dim: #c9a200;
+    --yellow-glow: rgba(245, 197, 24, 0.15);
+    --white: #ffffff;
+    --gray: #888888;
+    --danger: #e04444;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Cairo', sans-serif;
+    background: var(--bg);
+    color: var(--white);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ========== PASSCODE SCREEN ========== */
+  #passcode-screen {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 24px 20px;
+    background: radial-gradient(ellipse at top, #1a1500 0%, var(--bg) 60%);
+  }
+
+  .logo-area { text-align: center; margin-bottom: 30px; }
+  .logo-icon {
+    width: 70px; height: 70px;
+    background: linear-gradient(135deg, var(--yellow), var(--yellow-dim));
+    border-radius: 20px;
+    display: flex; align-items: center; justify-content: center;
+    margin: 0 auto 10px; font-size: 30px;
+    box-shadow: 0 0 30px rgba(245,197,24,0.3);
+  }
+  .logo-title { font-size: 24px; font-weight: 900; color: var(--yellow); }
+
+  /* New Password Display */
+  .pass-display {
+    width: 100%; max-width: 400px;
+    background: var(--surface2);
+    border: 2px dashed var(--yellow);
+    border-radius: 16px;
+    padding: 15px;
+    margin-bottom: 25px;
+    text-align: center;
+    cursor: pointer;
+  }
+  .pass-display span { display: block; font-size: 12px; color: var(--gray); }
+  .pass-display strong { font-size: 22px; color: var(--white); letter-spacing: 2px; }
+
+  .code-card {
+    width: 100%; max-width: 400px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 20px;
+    padding: 25px;
+  }
+
+  .code-input {
+    width: 100%; background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 12px; padding: 15px;
+    font-size: 20px; color: var(--yellow);
+    text-align: center; outline: none; margin-bottom: 15px;
+    direction: ltr;
+  }
+
+  .btn-row { display: flex; gap: 10px; margin-bottom: 15px; }
+  .btn-action {
+    flex: 1; background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--white); padding: 10px;
+    border-radius: 10px; cursor: pointer; font-family: 'Cairo';
+  }
+
+  .btn-enter {
+    width: 100%; background: var(--yellow);
+    border: none; border-radius: 12px;
+    padding: 15px; font-weight: 900; cursor: pointer;
+  }
+
+  /* ========== MAIN APP SCREEN ========== */
+  #main-screen { display: none; flex-direction: column; min-height: 100vh; }
+  .app-header {
+    background: var(--surface); padding: 15px;
+    display: flex; justify-content: space-between; align-items: center;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .clips-grid {
+    padding: 15px; display: grid;
+    grid-template-columns: repeat(2, 1fr); gap: 12px;
+  }
+
+  .clip-card {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 15px; padding: 15px; text-align: center;
+    transition: 0.2s; cursor: pointer;
+  }
+  .clip-card:hover { border-color: var(--yellow); }
+  .clip-emoji { font-size: 30px; margin-bottom: 8px; display: block; }
+  .clip-name { font-size: 14px; font-weight: 700; }
+
+  /* Modal */
+  .modal-overlay {
+    position: fixed; inset: 0; background: rgba(0,0,0,0.9);
+    display: none; align-items: center; justify-content: center; padding: 20px;
+    z-index: 1000;
+  }
+  .modal { background: var(--surface); padding: 25px; border-radius: 20px; width: 100%; max-width: 350px; text-align: center; }
+  .modal-btn {
+    display: block; background: #229ED9; color: white;
+    padding: 15px; border-radius: 12px; text-decoration: none;
+    margin: 20px 0 10px; font-weight: 700;
+  }
+</style>
+</head>
+<body>
+
+<div id="passcode-screen">
+  <div class="logo-area">
+    <div class="logo-icon">🎬</div>
+    <div class="logo-title">CLIPS ZONE</div>
+  </div>
+
+  <div class="pass-display" onclick="copyFixedCode()">
+    <span>رمز الدخول الحالي هو:</span>
+    <strong id="target-code">1234</strong>
+    <p style="font-size: 10px; color: var(--yellow); margin-top: 5px;">(اضغط هنا للنسخ السريع)</p>
+  </div>
+
+  <div class="code-card">
+    <input type="text" id="code-input" class="code-input" placeholder="أدخل الرمز هنا">
+    
+    <div class="btn-row">
+      <button class="btn-action" onclick="copyCode()">📋 نسخ</button>
+      <button class="btn-action" onclick="pasteCode()">📌 لصق</button>
+    </div>
+
+    <button class="btn-enter" onclick="checkCode()">دخول إلى المنطقة الحصرية</button>
+    <div id="error-msg" style="color: var(--danger); text-align: center; margin-top: 10px; font-size: 13px;"></div>
+  </div>
+</div>
+
+<div id="main-screen">
+  <div class="app-header">
+    <button onclick="logout()" style="background:none; border:none; color:var(--gray); cursor:pointer;">خروج ⇤</button>
+    <div style="color:var(--yellow); font-weight:900;">CLIPS ZONE</div>
+    <div style="width: 30px;"></div>
+  </div>
+
+  <div class="clips-grid" id="clips-grid">
+    </div>
+</div>
+
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h3 id="m-title" style="color:var(--yellow)"></h3>
+    <a href="#" id="m-link" class="modal-btn" target="_blank">فتح الرابط المشفر</a>
+    <button onclick="closeModal()" style="background:none; border:none; color:var(--gray); cursor:pointer;">إغلاق</button>
+  </div>
+</div>
+
+<script>
+  const CORRECT_CODE = "1234";
+  // ضع رابط الـ API الخاص بـ Google Apps Script هنا
+  const SHEET_URL = "https://script.google.com/macros/s/AKfycbwTQdhpGV1w8s8TJ9T490DeVnUEK-nE_pII8d6I4oz19ZS5izxxmumq2q6piKmrCnhV/exec";
+
+  let clipsData = [];
+
+  function checkCode() {
+    const val = document.getElementById('code-input').value.trim();
+    if (val === CORRECT_CODE) {
+      sessionStorage.setItem('auth_clips', 'true');
+      showApp();
+    } else {
+      document.getElementById('error-msg').textContent = "الرمز غير صحيح، يرجى التأكد منه";
+    }
+  }
+
+  function showApp() {
+    document.getElementById('passcode-screen').style.display = 'none';
+    document.getElementById('main-screen').style.display = 'flex';
+    fetchData();
+  }
+
+  async function fetchData() {
+    const grid = document.getElementById('clips-grid');
+    grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding:50px;">جاري تحميل المقاطع...</div>';
+    
+    try {
+      const res = await fetch(SHEET_URL);
+      const data = await res.json();
+      const rows = Array.isArray(data) ? data : (data.data || []);
+      
+      clipsData = rows.map(r => ({
+        name: r.name || r[0] || "بدون اسم",
+        link: r.link || r[1] || "#"
+      }));
+
+      renderClips();
+    } catch (e) {
+      grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center; color:red;">خطأ في جلب البيانات من Google Sheet</div>';
+    }
+  }
+
+  function renderClips() {
+    const grid = document.getElementById('clips-grid');
+    if (clipsData.length === 0) {
+      grid.innerHTML = '<div style="grid-column: 1/-1; text-align:center;">لا توجد مقاطع حالياً</div>';
+      return;
+    }
+
+    grid.innerHTML = clipsData.map((clip, i) => `
+      <div class="clip-card" onclick="openModal(${i})">
+        <span class="clip-emoji">🎬</span>
+        <div class="clip-name">${clip.name}</div>
+      </div>
+    `).join('');
+  }
+
+  function openModal(i) {
+    document.getElementById('m-title').textContent = clipsData[i].name;
+    document.getElementById('m-link').href = clipsData[i].link;
+    document.getElementById('modal').style.display = 'flex';
+  }
+
+  function closeModal() { document.getElementById('modal').style.display = 'none'; }
+
+  function logout() {
+    sessionStorage.removeItem('auth_clips');
+    location.reload();
+  }
+
+  // ميزات النسخ واللصق
+  async function copyFixedCode() {
+    await navigator.clipboard.writeText("1234");
+    alert("تم نسخ الرمز 1234");
+  }
+
+  async function copyCode() {
+    const val = document.getElementById('code-input').value;
+    if(val) await navigator.clipboard.writeText(val);
+  }
+
+  async function pasteCode() {
+    const text = await navigator.clipboard.readText();
+    document.getElementById('code-input').value = text;
+  }
+
+  if (sessionStorage.getItem('auth_clips') === 'true') showApp();
+</script>
+
+</body>
+</html>
