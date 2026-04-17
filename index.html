@@ -53,27 +53,6 @@
   #main-screen { display: none; flex-direction: column; min-height: 100vh; }
   .app-header { background: var(--surface); padding: 15px; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border); }
   
-  /* 🔍 شريط البحث */
-  .search-box {
-    padding: 12px; background: var(--surface); border-bottom: 1px solid var(--border);
-  }
-  .search-input {
-    width: 100%; background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 10px; padding: 12px 15px; font-size: 14px;
-    color: var(--white); font-family: 'Cairo'; outline: none;
-  }
-  .search-input::placeholder { color: var(--gray); }
-  
-  /* 📊 شريط الإحصائيات */
-  .stats-bar {
-    padding: 8px 12px; background: var(--surface2); border-bottom: 1px solid var(--border);
-    display: flex; justify-content: space-around; flex-wrap: wrap; gap: 8px;
-  }
-  .stat-item {
-    display: flex; align-items: center; gap: 5px; font-size: 12px;
-    background: var(--surface); padding: 5px 10px; border-radius: 20px;
-  }
-  
   .grid { padding: 12px; display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
   
   .item {
@@ -86,21 +65,6 @@
   
   .item-info { padding: 8px; }
   .item-title { display: block; font-size: 13px; font-weight: 700; text-align: center; margin-bottom: 5px; }
-  
-  /* 👁️ عداد المشاهدات + 📤 مشاركة */
-  .item-footer {
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 5px 8px; border-top: 1px solid var(--border);
-  }
-  .views-count { font-size: 11px; color: var(--gray); display: flex; align-items: center; gap: 3px; }
-  .share-btn {
-    background: none; border: none; color: var(--yellow); font-size: 14px;
-    cursor: pointer; padding: 3px 5px;
-  }
-  .share-btn:active { opacity: 0.7; }
-  
-  .album-badge { background: var(--yellow); color: #000; font-size: 10px; padding: 2px 6px; border-radius: 4px; margin-right: 5px; }
-  .new-badge { background: var(--danger); color: white; font-size: 9px; padding: 2px 5px; border-radius: 4px; margin-right: 5px; }
 
   .btn-paste {
     background: none; border: 1px solid var(--border); color: var(--gray);
@@ -125,19 +89,6 @@
     cursor: pointer; font-size: 14px; z-index: 10;
   }
 
-  .album-modal {
-    position: fixed; inset: 0; background: #0a0a0a; z-index: 9999;
-    display: none; flex-direction: column; overflow-y: auto;
-  }
-  .album-header {
-    background: var(--surface); padding: 15px; display: flex;
-    justify-content: space-between; align-items: center; border-bottom: 1px solid var(--border);
-    position: sticky; top: 0; z-index: 10;
-  }
-  .album-content { padding: 12px; display: flex; flex-direction: column; gap: 10px; }
-  .album-video { width: 100%; border-radius: 10px; background: #000; }
-  .album-img { width: 100%; border-radius: 10px; cursor: pointer; }
-  
   .no-results {
     grid-column: 1/-1; text-align: center; padding: 30px; color: var(--gray);
   }
@@ -178,19 +129,6 @@
     <div style="width:40px;"></div>
   </div>
   
-  <!-- 🔍 شريط البحث -->
-  <div class="search-box">
-    <input type="text" id="searchInput" class="search-input" placeholder="🔍 بحث عن مقطع..." oninput="filterItems()">
-  </div>
-  
-  <!-- 📊 شريط الإحصائيات -->
-  <div class="stats-bar" id="statsBar">
-    <span class="stat-item">📊 <span id="totalCount">0</span> الكل</span>
-    <span class="stat-item">🎥 <span id="videoCount">0</span> فيديو</span>
-    <span class="stat-item">🖼️ <span id="imageCount">0</span> صورة</span>
-    <span class="stat-item">📁 <span id="albumCount">0</span> ألبوم</span>
-  </div>
-  
   <div class="grid" id="grid"></div>
 </div>
 
@@ -199,22 +137,12 @@
   <video id="player" controls autoplay playsinline></video>
 </div>
 
-<div class="album-modal" id="albumModal">
-  <div class="album-header">
-    <button onclick="closeAlbum()" style="background:none; border:none; color:var(--gray); font-family:'Cairo';">✕ إغلاق</button>
-    <div style="color:var(--yellow); font-weight:900;" id="albumTitle">الألبوم</div>
-    <div style="width:40px;"></div>
-  </div>
-  <div class="album-content" id="albumContent"></div>
-</div>
-
 <script>
   const CORRECT_CODE = "1234";
-  const API = "https://script.google.com/macros/s/AKfycbzyZ0Lsjqz9p39DsoJ2nCeReMU9sx6es_bONa0bJ26mXVHo3CorpZ8gbPd4TH_SRJQr/exec";
+  // ✅ الرابط الجديد هنا
+  const API = "https://script.google.com/macros/s/AKfycbyX8NHivy6jol4eTMpBVFacJ7_V5sJtYupsNFQZfevy4KEnnqk5Ib9TiZ-C7LUaIhdP/exec";
 
   let dataList = [];
-  let filteredList = [];
-  let viewsData = JSON.parse(localStorage.getItem('clip_views') || '{}');
 
   function copyOnlyCode() {
     const code = document.getElementById('the-code').innerText;
@@ -264,151 +192,86 @@
         let isImage = !isAlbum && (raw.endsWith('.jpg') || raw.endsWith('.png') || raw.endsWith('.jpeg'));
         
         return {
-          id: 'clip_' + i,
           name: r.name || r[0] || "مقطع " + (i + 1),
           video: raw,
           thumb: r.thumb || r[2] || "",
           isAlbum: isAlbum,
           isVideo: isVideo,
-          isImage: isImage,
-          views: viewsData['clip_' + i] || 0
+          isImage: isImage
         };
       }).filter(x => x.video);
 
-      filteredList = [...dataList];
       render();
-      updateStats();
     } catch (e) {
       console.error(e);
       document.getElementById('grid').innerHTML = '<div class="no-results">❌ فشل التحميل</div>';
     }
   }
 
-  function updateStats() {
-    const total = dataList.length;
-    const videos = dataList.filter(d => d.isVideo).length;
-    const images = dataList.filter(d => d.isImage).length;
-    const albums = dataList.filter(d => d.isAlbum).length;
-    
-    document.getElementById('totalCount').textContent = total;
-    document.getElementById('videoCount').textContent = videos;
-    document.getElementById('imageCount').textContent = images;
-    document.getElementById('albumCount').textContent = albums;
-  }
-
-  function filterItems() {
-    const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-    
-    if (searchTerm === '') {
-      filteredList = [...dataList];
-    } else {
-      filteredList = dataList.filter(item => 
-        item.name.toLowerCase().includes(searchTerm)
-      );
-    }
-    
-    render();
-  }
-
   function render() {
     let grid = document.getElementById("grid");
     
-    if (filteredList.length === 0) {
-      grid.innerHTML = '<div class="no-results">🔍 لا توجد نتائج للبحث</div>';
+    if (dataList.length === 0) {
+      grid.innerHTML = '<div class="no-results">🎬 لا توجد مقاطع</div>';
       return;
     }
 
-    grid.innerHTML = filteredList.map((item, idx) => {
-      const originalIndex = dataList.findIndex(d => d.id === item.id);
-      
-      return `
-        <div class="item" onclick="openItem(${originalIndex})">
-          ${item.thumb ? `<img src="${item.thumb}">` : `<img src="https://via.placeholder.com/300x200/1a1a1a/f5c518?text=🎬">`}
-          <div class="item-info">
-            <span class="item-title">
-              ${item.isAlbum ? '<span class="album-badge">📁 ألبوم</span>' : ''}
-              ${item.name}
-            </span>
-          </div>
-          <div class="item-footer">
-            <span class="views-count">👁️ ${item.views}</span>
-            <button class="share-btn" onclick="event.stopPropagation(); shareItem('${item.id}')" title="مشاركة">📤</button>
-          </div>
+    grid.innerHTML = dataList.map((item, i) => `
+      <div class="item" onclick="openItem(${i})">
+        ${item.thumb ? `<img src="${item.thumb}">` : `<img src="https://via.placeholder.com/300x200/1a1a1a/f5c518?text=🎬">`}
+        <div class="item-info">
+          <span class="item-title">${item.name}</span>
         </div>
-      `;
-    }).join("");
-  }
-
-  function addView(itemId) {
-    viewsData[itemId] = (viewsData[itemId] || 0) + 1;
-    localStorage.setItem('clip_views', JSON.stringify(viewsData));
-    
-    const item = dataList.find(d => d.id === itemId);
-    if (item) item.views = viewsData[itemId];
-    render();
-  }
-
-  function shareItem(itemId) {
-    const item = dataList.find(d => d.id === itemId);
-    if (!item) return;
-    
-    const shareText = `🎬 ${item.name}\n\nلمشاهدة المزيد تابعنا على تيليجرام:\n@xxnnn8 👑`;
-    
-    if (navigator.share) {
-      navigator.share({
-        title: item.name,
-        text: shareText,
-      }).catch(() => {});
-    } else {
-      navigator.clipboard.writeText(shareText).then(() => {
-        alert('تم نسخ معلومات المقطع مع حقوق @xxnnn8');
-      });
-    }
+      </div>
+    `).join("");
   }
 
   function openItem(i) {
     let item = dataList[i];
-    addView(item.id);
 
-    // 📁 ألبوم
-    if (item.isAlbum) {
-      let vids = item.video.split("-").filter(v => v.trim());
-      document.getElementById('albumTitle').textContent = item.name;
-      
-      let content = document.getElementById('albumContent');
-      content.innerHTML = vids.map(v => {
-        let trimmed = v.trim();
-        let isVideo = trimmed.endsWith('.mp4') || trimmed.endsWith('.mov');
-        if (isVideo) {
-          return `<video src="${trimmed}" controls class="album-video" playsinline></video>`;
-        } else {
-          return `<img src="${trimmed}" class="album-img" onclick="showImage('${trimmed}')">`;
-        }
-      }).join('');
-      
-      document.getElementById('albumModal').style.display = 'flex';
+    // 🎥 فيديو
+    if (item.isVideo) {
+      let modal = document.getElementById("videoModal");
+      let player = document.getElementById("player");
+      player.src = item.video;
+      modal.style.display = "flex";
       return;
     }
 
     // 🖼️ صورة
     if (item.isImage) {
-      showImage(item.video);
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed; inset:0; background:#000; z-index:99999; display:flex; align-items:center; justify-content:center;';
+      modal.innerHTML = `<img src="${item.video}" style="max-width:100%; max-height:100%; object-fit:contain;" onclick="this.parentElement.remove()">`;
+      document.body.appendChild(modal);
+      modal.onclick = () => modal.remove();
       return;
     }
 
-    // 🎥 فيديو
-    let modal = document.getElementById("videoModal");
-    let player = document.getElementById("player");
-    player.src = item.video;
-    modal.style.display = "flex";
-  }
+    // 📁 ألبوم
+    if (item.isAlbum) {
+      let vids = item.video.split("-").filter(v => v.trim());
+      const modal = document.createElement('div');
+      modal.style.cssText = 'position:fixed; inset:0; background:#0a0a0a; z-index:9999; overflow-y:auto; padding:15px;';
+      modal.innerHTML = `
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+          <h3 style="color:#f5c518;">${item.name}</h3>
+          <button onclick="this.parentElement.parentElement.remove()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">✕</button>
+        </div>
+        ${vids.map(v => {
+          let trimmed = v.trim();
+          let isVid = trimmed.endsWith('.mp4') || trimmed.endsWith('.mov');
+          return isVid 
+            ? `<video src="${trimmed}" controls style="width:100%; margin-bottom:10px; border-radius:10px;"></video>`
+            : `<img src="${trimmed}" style="width:100%; margin-bottom:10px; border-radius:10px;">`;
+        }).join('')}
+      `;
+      document.body.appendChild(modal);
+      return;
+    }
 
-  function showImage(src) {
-    const modal = document.createElement('div');
-    modal.style.cssText = 'position:fixed; inset:0; background:#000; z-index:99999; display:flex; align-items:center; justify-content:center;';
-    modal.innerHTML = `<img src="${src}" style="max-width:100%; max-height:100%; object-fit:contain;" onclick="this.parentElement.remove()">`;
-    document.body.appendChild(modal);
-    modal.onclick = () => modal.remove();
+    // رابط خارجي
+    window.open(item.video, '_blank');
   }
 
   function closeVideo() {
@@ -417,11 +280,6 @@
     player.pause();
     player.src = "";
     modal.style.display = "none";
-  }
-
-  function closeAlbum() {
-    document.getElementById('albumModal').style.display = 'none';
-    document.getElementById('albumContent').innerHTML = '';
   }
 
   function logout() {
