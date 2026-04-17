@@ -125,7 +125,8 @@
 
 <script>
   const CORRECT_CODE = "1234";
-  const SHEET_URL = "https://script.google.com/macros/s/AKfycbyE1for4UNanZYE7KYiN-EG5I7uV849P_chwL5WvfcPutiy0NzBnNc7Wa4xNxXqvCJe/exec";
+  // ✅ تم تحديث الرابط إلى الرابط الجديد الصحيح
+  const SHEET_URL = "https://script.google.com/macros/s/AKfycbzyZ0Lsjqz9p39DsoJ2nCeReMU9sx6es_bONa0bJ26mXVHo3CorpZ8gbPd4TH_SRJQr/exec";
 
   let clipsData = [];
 
@@ -182,28 +183,16 @@
         throw new Error("تنسيق البيانات غير مدعوم");
       }
 
-      // ✅ التعديل الجديد: فصل العمود الثاني إلى رابطين
-      clipsData = rows.map(r => {
-        const name = r.name || r[0] || "مقطع";
-        const combined = r.link || r[1] || "";
-        
-        // فصل الروابط باستخدام فاصلة أو مسافة أو |
-        let videoLink = "#";
-        let thumbLink = "";
-        
-        if (combined) {
-          const parts = combined.split(/[,|\s]+/); // يفصل بأي فاصل: فاصلة، مسافة، أو |
-          videoLink = parts[0]?.trim() || "#";
-          thumbLink = parts[1]?.trim() || "";
-        }
-        
-        return { name, link: videoLink, thumbnail: thumbLink };
-      }).filter(c => c.name && c.link && c.link !== "#");
+      clipsData = rows.map(r => ({
+        name: r.name || r[0] || "مقطع",
+        link: r.link || r[1] || "#",
+        thumbnail: r.thumbnail || r[2] || ""
+      })).filter(c => c.name && c.link && c.link !== "#");
 
       render();
     } catch (e) {
       console.error(e);
-      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color: var(--danger);">❌ فشل التحميل</div>';
+      grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color: var(--danger);">❌ فشل التحميل. تأكد من ترتيب الـ Sheet.</div>';
     }
   }
 
