@@ -118,7 +118,8 @@
 
 <script>
   const CORRECT_CODE = "1234";
-  const API = "https://script.google.com/macros/s/AKfycbyX8NHivy6jol4eTMpBVFacJ7_V5sJtYupsNFQZfevy4KEnnqk5Ib9TiZ-C7LUaIhdP/exec";
+  // ✅ الرابط الجديد هنا
+  const API = "https://script.google.com/macros/s/AKfycbxOiUTM6SaheW9uf_5uIECabsMxSDoniDF5MeXGL1Q5hm1M7e05RaCs6PIwqU6G5UtZ/exec";
 
   let clipsData = [];
 
@@ -178,7 +179,7 @@
     
     list.innerHTML = clipsData.map((item, i) => `
       <div class="clip-item" onclick="playClip(${i})">
-        <span class="clip-icon">🎥</span>
+        <span class="clip-icon">📁</span>
         <span class="clip-name">${item.name}</span>
         <span class="clip-arrow">›</span>
       </div>
@@ -186,10 +187,25 @@
   }
 
   function playClip(i) {
-    const link = clipsData[i].video;
-    if (link) {
-      window.open(link, '_blank');
-    }
+    const links = clipsData[i].video.split(' - ');
+    
+    // نافذة منبثقة لعرض محتويات الألبوم
+    const modal = document.createElement('div');
+    modal.style.cssText = 'position:fixed; inset:0; background:#0a0a0a; z-index:9999; overflow-y:auto; padding:15px;';
+    modal.innerHTML = `
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px;">
+        <h3 style="color:#f5c518;">${clipsData[i].name}</h3>
+        <button onclick="this.parentElement.parentElement.remove()" style="background:none; border:none; color:white; font-size:20px; cursor:pointer;">✕</button>
+      </div>
+      ${links.map(link => {
+        let trimmed = link.trim();
+        let isVideo = trimmed.endsWith('.mp4') || trimmed.endsWith('.mov');
+        return isVideo 
+          ? `<video src="${trimmed}" controls style="width:100%; margin-bottom:10px; border-radius:10px;"></video>`
+          : `<img src="${trimmed}" style="width:100%; margin-bottom:10px; border-radius:10px;">`;
+      }).join('')}
+    `;
+    document.body.appendChild(modal);
   }
 
   function logout() {
