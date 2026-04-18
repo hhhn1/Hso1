@@ -23,25 +23,13 @@ body{
   justify-content:center;
   align-items:center;
   gap:12px;
-  padding:20px;
 }
 
-.title{
-  font-size:30px;
-  font-weight:900;
-  color:#f5c518;
-}
-
-.code{
-  font-size:50px;
-  font-weight:900;
-  color:#f5c518;
-  cursor:pointer;
-}
+.title{font-size:30px;font-weight:900;color:#f5c518;}
+.code{font-size:50px;font-weight:900;color:#f5c518;cursor:pointer;}
 
 .input{
-  width:100%;
-  max-width:300px;
+  width:300px;
   padding:12px;
   text-align:center;
   border-radius:10px;
@@ -51,16 +39,14 @@ body{
 }
 
 .btn{
-  width:100%;
-  max-width:300px;
+  width:300px;
   padding:12px;
   border:none;
   border-radius:10px;
   font-weight:900;
+  background:#f5c518;
+  color:#000;
 }
-
-.copy{background:#f5c518;color:#000;}
-.enter{background:#f5c518;color:#000;}
 
 /* APP */
 #app{display:none;}
@@ -70,38 +56,18 @@ body{
   justify-content:space-between;
   padding:10px;
   background:#111;
-  border-bottom:1px solid #222;
 }
 
-.online{color:#00ff66;font-weight:700;}
+.online{color:#00ff66;}
 
 .contact{
+  display:block;
   background:#f5c518;
   color:#000;
   text-align:center;
   padding:10px;
   font-weight:900;
-}
-
-.stats{
-  display:flex;
-  justify-content:space-around;
-  padding:10px;
-  font-size:13px;
-  color:#aaa;
-}
-
-.search{
-  padding:10px;
-}
-
-.search input{
-  width:100%;
-  padding:10px;
-  border-radius:10px;
-  border:none;
-  background:#111;
-  color:#fff;
+  text-decoration:none;
 }
 
 .grid{
@@ -115,7 +81,6 @@ body{
   background:#111;
   border-radius:12px;
   overflow:hidden;
-  cursor:pointer;
 }
 
 .card img{
@@ -124,17 +89,10 @@ body{
   object-fit:cover;
 }
 
-.card div{
-  padding:8px;
-  font-size:13px;
-}
-
-/* viewer */
 .viewer{
   position:fixed;
   inset:0;
   background:#000;
-  z-index:9999;
   display:flex;
   flex-direction:column;
 }
@@ -144,38 +102,19 @@ body{
   max-height:85vh;
   margin:auto;
 }
-
-.nav{
-  display:flex;
-  justify-content:space-between;
-  padding:10px;
-}
-
-.nav button{
-  padding:10px 20px;
-  border:none;
-  border-radius:10px;
-  font-weight:900;
-}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
 <div id="login">
   <div class="title">حصريات حسو</div>
-
   <div class="code" onclick="copy()">1234</div>
-
-  <button class="btn copy" onclick="copy()">نسخ الرمز</button>
-
+  <button class="btn" onclick="copy()">نسخ</button>
   <input id="code" class="input" placeholder="كلمة المرور">
-
-  <button class="btn enter" onclick="enter()">دخول</button>
+  <button class="btn" onclick="enter()">دخول</button>
 </div>
 
-<!-- APP -->
 <div id="app">
 
   <div class="top">
@@ -183,18 +122,12 @@ body{
     <div>حصريات حسو</div>
   </div>
 
-  <div class="contact">
+  <!-- ✔ تم إصلاح التواصل -->
+  <a href="https://t.me/xxnnn8" target="_blank" class="contact">
     للتواصل معنا @xxnnn8
-  </div>
+  </a>
 
-  <div class="stats">
-    <div>الألبومات: <span id="count">0</span></div>
-    <div>Ultra Fast ⚡</div>
-  </div>
-
-  <div class="search">
-    <input id="search" placeholder="ابحث...">
-  </div>
+  <div id="count" style="padding:10px;">0 ألبوم</div>
 
   <div class="grid" id="grid"></div>
 
@@ -205,9 +138,7 @@ body{
 const API="https://script.google.com/macros/s/AKfycbxXHimt8YCbt4wUPves03ewIZdQZ0P-UqJlUc0TosKE0ixqRANx5H9B_eakod608_OE/exec";
 
 let data=[];
-let filtered=[];
 
-/* login */
 function copy(){
   navigator.clipboard.writeText("1234");
 }
@@ -215,17 +146,25 @@ function copy(){
 function enter(){
   if(document.getElementById("code").value!=="1234") return;
 
-  document.getElementById("login").style.display="none";
-  document.getElementById("app").style.display="block";
+  login.style.display="none";
+  app.style.display="block";
 
   load();
 }
 
-/* load */
+/* ✔ حل الشاشة السوداء */
 async function load(){
   try{
-    const res=await fetch(API+"?t="+Date.now(), {cache:"no-store"});
-    const json=await res.json();
+    const res=await fetch(API+"?t="+Date.now(),{cache:"no-store"});
+    const text=await res.text();
+
+    let json;
+    try{
+      json=JSON.parse(text);
+    }catch{
+      console.log("مو JSON:",text);
+      return;
+    }
 
     data=json.map(x=>{
       let links=String(x.video||"")
@@ -240,55 +179,35 @@ async function load(){
       };
     });
 
-    filtered=data;
-    document.getElementById("count").innerText=data.length;
+    count.innerText=data.length+" ألبوم";
+
     render();
 
   }catch(e){
-    console.log("API Error",e);
+    console.log("خطأ تحميل",e);
   }
 }
 
-/* render */
 function render(){
-  const g=document.getElementById("grid");
-
-  g.innerHTML=filtered.map((a,i)=>`
+  grid.innerHTML=data.map((a,i)=>`
     <div class="card" onclick="openAlbum(${i})">
       <img src="${a.cover}" loading="lazy"
       onerror="this.src='https://via.placeholder.com/300'">
-      <div>${a.name}</div>
     </div>
   `).join("");
 }
 
-/* search */
-document.addEventListener("input",e=>{
-  if(e.target.id==="search"){
-    let t=e.target.value.toLowerCase();
-    filtered=data.filter(x=>x.name.toLowerCase().includes(t));
-    render();
-  }
-});
-
-/* viewer */
 function openAlbum(i){
 
-  let a=filtered[i];
+  let a=data[i];
   let index=0;
 
   let v=document.createElement("div");
   v.className="viewer";
 
   v.innerHTML=`
-    <div class="nav">
-      <button onclick="this.parentElement.parentElement.remove()">إغلاق</button>
-      <button id="prev">◀</button>
-      <button id="next">▶</button>
-    </div>
-
-    <img id="img"
-    src="${a.links[0]}"
+    <button onclick="this.parentElement.remove()">إغلاق</button>
+    <img id="img" src="${a.links[0]}"
     onerror="this.src='https://via.placeholder.com/300'">
   `;
 
@@ -296,41 +215,10 @@ function openAlbum(i){
 
   const img=v.querySelector("#img");
 
-  function update(){
-    img.src=a.links[index];
-  }
-
-  v.querySelector("#next").onclick=()=>{
+  img.onclick=()=>{
     index=(index+1)%a.links.length;
-    update();
+    img.src=a.links[index];
   };
-
-  v.querySelector("#prev").onclick=()=>{
-    index=(index-1+a.links.length)%a.links.length;
-    update();
-  };
-
-  /* swipe */
-  let start=0;
-
-  img.addEventListener("touchstart",e=>{
-    start=e.touches[0].clientX;
-  });
-
-  img.addEventListener("touchend",e=>{
-    let end=e.changedTouches[0].clientX;
-
-    if(start-end>50){
-      index=(index+1)%a.links.length;
-      update();
-    }
-
-    if(end-start>50){
-      index=(index-1+a.links.length)%a.links.length;
-      update();
-    }
-  });
-
 }
 
 </script>
