@@ -5,17 +5,17 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>حصريات حسو</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
 
 <style>
 body{
   margin:0;
   font-family:'Cairo',sans-serif;
-  background:#0a0a0a;
+  background:#000;
   color:#fff;
 }
 
-/* login */
+/* LOGIN */
 #login{
   min-height:100vh;
   display:flex;
@@ -27,16 +27,27 @@ body{
 }
 
 .title{
-  font-size:28px;
+  font-size:30px;
   font-weight:900;
   color:#f5c518;
 }
 
 .code{
-  font-size:60px;
+  font-size:50px;
   font-weight:900;
   color:#f5c518;
   cursor:pointer;
+}
+
+.input{
+  width:100%;
+  max-width:300px;
+  padding:12px;
+  text-align:center;
+  border-radius:10px;
+  border:none;
+  background:#111;
+  color:#fff;
 }
 
 .btn{
@@ -49,44 +60,50 @@ body{
 }
 
 .copy{background:#f5c518;color:#000;}
-.paste{background:#333;color:#fff;}
 .enter{background:#f5c518;color:#000;}
 
-.input{
-  width:100%;
-  max-width:300px;
-  padding:12px;
-  text-align:center;
-  border-radius:10px;
-  border:2px solid #222;
-  background:#1a1a1a;
-  color:#fff;
-}
+/* APP */
+#app{display:none;}
 
-/* app */
-#app{
-  display:none;
-}
-
-.header{
+.top{
   display:flex;
   justify-content:space-between;
-  padding:15px;
+  padding:10px;
   background:#111;
   border-bottom:1px solid #222;
 }
 
+.online{color:#00ff66;font-weight:700;}
+
 .contact{
-  margin:10px;
-  padding:12px;
-  text-align:center;
-  font-weight:900;
-  border-radius:12px;
   background:#f5c518;
   color:#000;
+  text-align:center;
+  padding:10px;
+  font-weight:900;
 }
 
-/* grid */
+.stats{
+  display:flex;
+  justify-content:space-around;
+  padding:10px;
+  font-size:13px;
+  color:#aaa;
+}
+
+.search{
+  padding:10px;
+}
+
+.search input{
+  width:100%;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  background:#111;
+  color:#fff;
+}
+
 .grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -95,9 +112,10 @@ body{
 }
 
 .card{
-  background:#1a1a1a;
+  background:#111;
   border-radius:12px;
   overflow:hidden;
+  cursor:pointer;
 }
 
 .card img{
@@ -111,14 +129,33 @@ body{
   font-size:13px;
 }
 
-/* animation */
-.fade-in{
-  animation:show .5s ease forwards;
+/* viewer */
+.viewer{
+  position:fixed;
+  inset:0;
+  background:#000;
+  z-index:9999;
+  display:flex;
+  flex-direction:column;
 }
 
-@keyframes show{
-  from{opacity:0;transform:translateY(20px);}
-  to{opacity:1;transform:translateY(0);}
+.viewer img{
+  max-width:100%;
+  max-height:85vh;
+  margin:auto;
+}
+
+.nav{
+  display:flex;
+  justify-content:space-between;
+  padding:10px;
+}
+
+.nav button{
+  padding:10px 20px;
+  border:none;
+  border-radius:10px;
+  font-weight:900;
 }
 </style>
 </head>
@@ -127,33 +164,36 @@ body{
 
 <!-- LOGIN -->
 <div id="login">
-
   <div class="title">حصريات حسو</div>
 
   <div class="code" onclick="copy()">1234</div>
 
-  <button class="btn copy" onclick="copy()">نسخ</button>
-  <button class="btn paste" onclick="paste()">لصق</button>
+  <button class="btn copy" onclick="copy()">نسخ الرمز</button>
 
   <input id="code" class="input" placeholder="كلمة المرور">
 
   <button class="btn enter" onclick="enter()">دخول</button>
-
 </div>
 
 <!-- APP -->
 <div id="app">
 
-  <div class="header">
-    <div></div>
-    <div style="color:#f5c518;font-weight:900;">حصريات حسو</div>
-    <div></div>
+  <div class="top">
+    <div class="online">🟢 متصل الآن</div>
+    <div>حصريات حسو</div>
   </div>
 
   <div class="contact">
-    <a href="https://t.me/xxnnn8" style="color:#000;text-decoration:none;">
-      للتواصل معنا @xxnnn8
-    </a>
+    للتواصل معنا @xxnnn8
+  </div>
+
+  <div class="stats">
+    <div>الألبومات: <span id="count">0</span></div>
+    <div>Ultra Fast ⚡</div>
+  </div>
+
+  <div class="search">
+    <input id="search" placeholder="ابحث...">
   </div>
 
   <div class="grid" id="grid"></div>
@@ -162,26 +202,17 @@ body{
 
 <script>
 
-const API="https://script.google.com/macros/s/AKfycbxOiUTM6SaheW9uf_5uIECabsMxSDoniDF5MeXGL1Q5hm1M7e05RaCs6PIwqU6G5UtZ/exec";
+const API="https://script.google.com/macros/s/AKfycbxXHimt8YCbt4wUPves03ewIZdQZ0P-UqJlUc0TosKE0ixqRANx5H9B_eakod608_OE/exec";
 
-let cache=[];
+let data=[];
+let filtered=[];
 
-/* safe copy */
+/* login */
 function copy(){
   navigator.clipboard.writeText("1234");
 }
 
-/* paste */
-async function paste(){
-  try{
-    const t=await navigator.clipboard.readText();
-    document.getElementById("code").value=t;
-  }catch(e){}
-}
-
-/* enter */
 function enter(){
-
   if(document.getElementById("code").value!=="1234") return;
 
   document.getElementById("login").style.display="none";
@@ -190,122 +221,111 @@ function enter(){
   load();
 }
 
-/* 🔥 SAFE LOAD (ما يطيح الصفحة) */
+/* load */
 async function load(){
-
   try{
+    const res=await fetch(API+"?t="+Date.now(), {cache:"no-store"});
+    const json=await res.json();
 
-    const res=await fetch(API+"?t="+Date.now());
-    let data=await res.json();
-
-    if(!Array.isArray(data)) data=[];
-
-    cache=data.map(x=>{
-
-      // يدعم أي شكل شيت بدون ما ينهار
-      let name = x.name || x.Name || "بدون اسم";
-
-      let raw = x.video || x.videos || x.links || "";
-
-      let links = String(raw)
+    data=json.map(x=>{
+      let links=String(x.video||"")
         .split(" - ")
-        .map(v=>v.trim())
-        .filter(v=>v.length>0);
+        .map(e=>e.trim())
+        .filter(e=>e.startsWith("http"));
 
       return{
-        name,
-        cover: x.cover || links[0],
-        links
+        name:x.name||"بدون اسم",
+        cover:links[0]||"https://via.placeholder.com/300",
+        links:links.length?links:["https://via.placeholder.com/300"]
       };
+    });
 
-    }).filter(a=>a.links.length>0);
-
+    filtered=data;
+    document.getElementById("count").innerText=data.length;
     render();
 
   }catch(e){
-
-    console.log("API ERROR",e);
-
-    document.getElementById("grid").innerHTML=
-    "<div style='padding:20px'>⚠️ خطأ تحميل البيانات</div>";
-
+    console.log("API Error",e);
   }
 }
 
 /* render */
 function render(){
+  const g=document.getElementById("grid");
 
-  document.getElementById("grid").innerHTML=
-  cache.map((a,i)=>`
-
+  g.innerHTML=filtered.map((a,i)=>`
     <div class="card" onclick="openAlbum(${i})">
-      <img src="${a.cover}">
+      <img src="${a.cover}" loading="lazy"
+      onerror="this.src='https://via.placeholder.com/300'">
       <div>${a.name}</div>
     </div>
-
   `).join("");
-
 }
+
+/* search */
+document.addEventListener("input",e=>{
+  if(e.target.id==="search"){
+    let t=e.target.value.toLowerCase();
+    filtered=data.filter(x=>x.name.toLowerCase().includes(t));
+    render();
+  }
+});
 
 /* viewer */
 function openAlbum(i){
 
-  const a=cache[i];
+  let a=filtered[i];
   let index=0;
 
-  const m=document.createElement("div");
-  m.style.cssText="position:fixed;inset:0;background:#000;z-index:9999;display:flex;flex-direction:column;";
+  let v=document.createElement("div");
+  v.className="viewer";
 
-  m.innerHTML=`
-    <div style="padding:15px;color:#f5c518;display:flex;justify-content:space-between;">
-      <div>${a.name}</div>
-      <button onclick="this.parentElement.parentElement.remove()" style="background:none;border:none;color:#fff;font-size:20px;">✕</button>
-    </div>
-
-    <div style="flex:1;display:flex;align-items:center;justify-content:center;">
-      <img id="img" src="${a.links[0]}" style="max-width:100%;max-height:90vh;border-radius:10px;">
-    </div>
-
-    <div style="display:flex;justify-content:space-between;padding:15px;">
+  v.innerHTML=`
+    <div class="nav">
+      <button onclick="this.parentElement.parentElement.remove()">إغلاق</button>
       <button id="prev">◀</button>
       <button id="next">▶</button>
     </div>
+
+    <img id="img"
+    src="${a.links[0]}"
+    onerror="this.src='https://via.placeholder.com/300'">
   `;
 
-  document.body.appendChild(m);
+  document.body.appendChild(v);
 
-  const img=m.querySelector("#img");
+  const img=v.querySelector("#img");
 
   function update(){
     img.src=a.links[index];
   }
 
-  m.querySelector("#next").onclick=()=>{
+  v.querySelector("#next").onclick=()=>{
     index=(index+1)%a.links.length;
     update();
   };
 
-  m.querySelector("#prev").onclick=()=>{
+  v.querySelector("#prev").onclick=()=>{
     index=(index-1+a.links.length)%a.links.length;
     update();
   };
 
   /* swipe */
-  let sx=0;
+  let start=0;
 
   img.addEventListener("touchstart",e=>{
-    sx=e.touches[0].clientX;
+    start=e.touches[0].clientX;
   });
 
   img.addEventListener("touchend",e=>{
-    let ex=e.changedTouches[0].clientX;
+    let end=e.changedTouches[0].clientX;
 
-    if(sx-ex>50){
+    if(start-end>50){
       index=(index+1)%a.links.length;
       update();
     }
 
-    if(ex-sx>50){
+    if(end-start>50){
       index=(index-1+a.links.length)%a.links.length;
       update();
     }
