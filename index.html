@@ -8,7 +8,7 @@
 <style>
 body{margin:0;background:#000;color:#fff;font-family:sans-serif}
 
-/* 🔐 LOGIN */
+/* LOGIN */
 #login{
 height:100vh;display:flex;flex-direction:column;
 justify-content:center;align-items:center;gap:12px;
@@ -19,7 +19,7 @@ justify-content:center;align-items:center;gap:12px;
 .yellow{background:#f5c518;color:#000;font-weight:bold}
 .dark{background:#111;color:#fff;border:none}
 
-/* 📱 APP */
+/* APP */
 #app{display:none}
 
 .top{display:flex;justify-content:space-between;padding:10px;background:#111}
@@ -29,7 +29,7 @@ display:block;background:#f5c518;color:#000;
 text-align:center;padding:10px;font-weight:bold;text-decoration:none;
 }
 
-/* 📦 GRID */
+/* GRID */
 .grid{
 display:grid;
 grid-template-columns:repeat(2,1fr);
@@ -41,7 +41,6 @@ padding:10px;
 background:#111;
 border-radius:12px;
 overflow:hidden;
-cursor:pointer;
 }
 
 .card img{
@@ -50,30 +49,30 @@ height:140px;
 object-fit:cover;
 }
 
-/* 🖼 VIEWER */
+/* VIEWER */
 .viewer{
 position:fixed;
 inset:0;
 background:#000;
 z-index:9999;
+overflow:hidden;
 display:flex;
-flex-direction:column;
 align-items:center;
 justify-content:center;
 }
 
 .viewer img{
 max-width:100%;
-max-height:80vh;
-border-radius:10px;
-transition:.25s;
+max-height:90vh;
+transition:.2s;
+touch-action:none;
 }
 </style>
 </head>
 
 <body>
 
-<!-- 🔐 LOGIN -->
+<!-- LOGIN -->
 <div id="login">
   <div class="title">حصريات حسو</div>
   <div class="code" onclick="copy()">1234</div>
@@ -82,7 +81,7 @@ transition:.25s;
   <button class="box yellow" onclick="enter()">دخول</button>
 </div>
 
-<!-- 📱 APP -->
+<!-- APP -->
 <div id="app">
 
 <div class="top">
@@ -106,12 +105,15 @@ const API="https://script.google.com/macros/s/AKfycbxXHimt8YCbt4wUPves03ewIZdQZ0
 
 let data=[];
 
-/* نسخ */
+/* INFINITE SCROLL */
+let page=0;
+let limit=6;
+
+/* LOGIN */
 function copy(){
 navigator.clipboard.writeText("1234");
 }
 
-/* دخول */
 function enter(){
 if(code.value!=="1234") return;
 login.style.display="none";
@@ -119,7 +121,7 @@ app.style.display="block";
 load();
 }
 
-/* 🔥 تحميل ودمج الألبومات */
+/* LOAD */
 async function load(){
 
 const res=await fetch(API+"?t="+Date.now());
@@ -152,36 +154,88 @@ cover:map[name][0]
 
 count.innerText=data.length+" ألبوم";
 
+grid.innerHTML="";
+page=0;
 render();
 
 }
 
-/* عرض */
+/* RENDER (INFINITE) */
 function render(){
-grid.innerHTML=data.map((a,i)=>`
-<div class="card" onclick="openAlbum(${i})">
-<img src="${a.cover}" onerror="this.src='https://via.placeholder.com/300'">
+
+let start=page*limit;
+let end=start+limit;
+
+let part=data.slice(start,end);
+
+grid.innerHTML += part.map((a,i)=>`
+<div class="card" onclick="openAlbum(${start+i})">
+<img src="${a.cover}" loading="lazy"
+onerror="this.src='https://via.placeholder.com/300'">
 </div>
 `).join("");
+
 }
 
-/* فتح الألبوم */
+/* SCROLL */
+window.addEventListener("scroll",()=>{
+
+if(window.innerHeight + window.scrollY >= document.body.offsetHeight - 200){
+
+page++;
+
+if(page*limit < data.length){
+render();
+}
+
+}
+
+});
+
+/* OPEN ALBUM */
 function openAlbum(i){
 
 let a=data[i];
-let index=0;
+
+let v=document.createElement("div");
+v.className="viewer";
+v.style.overflow="auto";
+
+v.innerHTML=`
+<div style="position:fixed;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;">
+<button onclick="this.closest('.viewer').remove()">رجوع</button>
+<div>${a.name} (${a.links.length})</div>
+</div>
+
+<div style="display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:60px 10px;">
+${a.links.map((img,i)=>`
+<img src="${img}" loading="lazy"
+onclick="openImage(${i}, ${JSON.stringify(a.links).replace(/"/g,'&quot;')})"
+style="width:100%;border-radius:10px"
+onerror="this.src='https://via.placeholder.com/300'">
+`).join("")}
+</div>
+`;
+
+document.body.appendChild(v);
+
+}
+
+/* OPEN IMAGE + ZOOM */
+function openImage(index, links){
+
+let scale=1;
 
 let v=document.createElement("div");
 v.className="viewer";
 
 v.innerHTML=`
 <div style="position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;">
-<button onclick="this.parentElement.parentElement.remove()">رجوع</button>
-<div id="counter">1/${a.links.length}</div>
+<button onclick="this.closest('.viewer').remove()">رجوع</button>
+<div id="counter"></div>
 </div>
 
-<img id="img" src="${a.links[0]}" 
-onerror="this.src='https://via.placeholder.com/300'">
+<img id="img">
 `;
 
 document.body.appendChild(v);
@@ -189,30 +243,39 @@ document.body.appendChild(v);
 let img=v.querySelector("#img");
 let counter=v.querySelector("#counter");
 
-/* تغيير */
-function change(i2){
-img.style.opacity=0;
-setTimeout(()=>{
-index=i2;
-img.src=a.links[index];
-counter.innerText=(index+1)+"/"+a.links.length;
-img.style.opacity=1;
-},150);
+function show(){
+img.src=links[index];
+counter.innerText=(index+1)+"/"+links.length;
+scale=1;
+img.style.transform="scale(1)";
 }
 
-/* ضغط */
-img.onclick=()=>change((index+1)%a.links.length);
+show();
 
-/* سحب */
-let start=0;
+/* next / prev */
+function next(){ index=(index+1)%links.length; show(); }
+function prev(){ index=(index-1+links.length)%links.length; show(); }
 
-img.ontouchstart=e=>start=e.touches[0].clientX;
+img.onclick=next;
+
+/* swipe */
+let startX=0;
+
+img.ontouchstart=e=>{
+startX=e.touches[0].clientX;
+};
 
 img.ontouchend=e=>{
-let end=e.changedTouches[0].clientX;
+let endX=e.changedTouches[0].clientX;
 
-if(end<start-50) change((index+1)%a.links.length);
-if(end>start+50) change((index-1+a.links.length)%a.links.length);
+if(endX<startX-50) next();
+if(endX>startX+50) prev();
+};
+
+/* ZOOM (double tap) */
+img.ondblclick=()=>{
+scale = scale===1 ? 2 : 1;
+img.style.transform=`scale(${scale})`;
 };
 
 }
