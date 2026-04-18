@@ -107,6 +107,7 @@ body{
 
 <body>
 
+<!-- LOGIN -->
 <div id="login">
   <div class="title">حصريات حسو</div>
   <div class="code" onclick="copy()">1234</div>
@@ -115,6 +116,7 @@ body{
   <button class="btn" onclick="enter()">دخول</button>
 </div>
 
+<!-- APP -->
 <div id="app">
 
   <div class="top">
@@ -122,12 +124,12 @@ body{
     <div>حصريات حسو</div>
   </div>
 
-  <!-- ✔ تم إصلاح التواصل -->
+  <!-- ✔ تواصل يعمل -->
   <a href="https://t.me/xxnnn8" target="_blank" class="contact">
     للتواصل معنا @xxnnn8
   </a>
 
-  <div id="count" style="padding:10px;">0 ألبوم</div>
+  <div id="count" style="padding:10px;">جاري التحميل...</div>
 
   <div class="grid" id="grid"></div>
 
@@ -152,7 +154,7 @@ function enter(){
   load();
 }
 
-/* ✔ حل الشاشة السوداء */
+/* 🔥 تحميل ذكي + إصلاح كامل */
 async function load(){
   try{
     const res=await fetch(API+"?t="+Date.now(),{cache:"no-store"});
@@ -162,33 +164,47 @@ async function load(){
     try{
       json=JSON.parse(text);
     }catch{
-      console.log("مو JSON:",text);
+      count.innerText="❌ API لا يرجع JSON";
+      console.log(text);
+      return;
+    }
+
+    if(!Array.isArray(json)){
+      count.innerText="❌ البيانات غير صحيحة";
       return;
     }
 
     data=json.map(x=>{
-      let links=String(x.video||"")
+      let raw = x.video || x.Video || x.links || x.Links || "";
+
+      let links = String(raw)
         .split(" - ")
         .map(e=>e.trim())
         .filter(e=>e.startsWith("http"));
 
       return{
-        name:x.name||"بدون اسم",
-        cover:links[0]||"https://via.placeholder.com/300",
-        links:links.length?links:["https://via.placeholder.com/300"]
+        name:x.name || x.Name || "بدون اسم",
+        cover:links[0] || "https://via.placeholder.com/300",
+        links:links.length ? links : ["https://via.placeholder.com/300"]
       };
     });
 
-    count.innerText=data.length+" ألبوم";
+    count.innerText = data.length + " ألبوم";
 
     render();
 
   }catch(e){
-    console.log("خطأ تحميل",e);
+    count.innerText="❌ فشل الاتصال بالـ API";
+    console.log(e);
   }
 }
 
 function render(){
+  if(!data.length){
+    grid.innerHTML="<div style='padding:20px'>لا توجد بيانات</div>";
+    return;
+  }
+
   grid.innerHTML=data.map((a,i)=>`
     <div class="card" onclick="openAlbum(${i})">
       <img src="${a.cover}" loading="lazy"
