@@ -89,18 +89,21 @@ body{
   object-fit:cover;
 }
 
+/* VIEWER */
 .viewer{
   position:fixed;
   inset:0;
   background:#000;
   display:flex;
   flex-direction:column;
+  z-index:9999;
 }
 
 .viewer img{
+  margin:auto;
   max-width:100%;
   max-height:85vh;
-  margin:auto;
+  transition:opacity .25s ease, transform .25s ease;
 }
 </style>
 </head>
@@ -146,14 +149,12 @@ function copy(){
 
 function enter(){
   if(document.getElementById("code").value!=="1234") return;
-
   login.style.display="none";
   app.style.display="block";
-
   load();
 }
 
-/* 🔥 تحميل مضبوط على B و C */
+/* 🔥 تحميل مضبوط B + C */
 async function load(){
   try{
     const res=await fetch(API+"?t="+Date.now(),{cache:"no-store"});
@@ -174,10 +175,8 @@ async function load(){
 
     data=json.map(x=>{
 
-      // 👇 العنوان من B
       let name = x.B || x.name || x.Name || "بدون اسم";
 
-      // 👇 الروابط من C
       let raw = x.C || x.video || x.Video || "";
 
       let links = String(raw)
@@ -193,7 +192,6 @@ async function load(){
     });
 
     count.innerText = data.length + " ألبوم";
-
     render();
 
   }catch(e){
@@ -202,19 +200,14 @@ async function load(){
 }
 
 function render(){
-  if(!data.length){
-    grid.innerHTML="<div style='padding:20px'>لا توجد بيانات</div>";
-    return;
-  }
-
   grid.innerHTML=data.map((a,i)=>`
     <div class="card" onclick="openAlbum(${i})">
-      <img src="${a.cover}" loading="lazy"
-      onerror="this.src='https://via.placeholder.com/300'">
+      <img src="${a.cover}">
     </div>
   `).join("");
 }
 
+/* 🚀 الألبوم المطور */
 function openAlbum(i){
 
   let a=data[i];
@@ -224,19 +217,62 @@ function openAlbum(i){
   v.className="viewer";
 
   v.innerHTML=`
-    <button onclick="this.parentElement.remove()">إغلاق</button>
-    <img id="img" src="${a.links[0]}"
-    onerror="this.src='https://via.placeholder.com/300'">
+    <div style="position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:center;z-index:999;">
+      
+      <button onclick="this.closest('.viewer').remove()"
+        style="background:#f5c518;color:#000;border:none;padding:8px 12px;border-radius:8px;font-weight:bold;">
+        رجوع
+      </button>
+
+      <div id="counter" style="color:#fff;font-weight:bold;">
+        1 / ${a.links.length}
+      </div>
+
+    </div>
+
+    <img id="img" src="${a.links[0]}">
   `;
 
   document.body.appendChild(v);
 
   const img=v.querySelector("#img");
+  const counter=v.querySelector("#counter");
+
+  function change(newIndex,dir){
+
+    img.style.opacity=0;
+    img.style.transform=dir>0?"translateX(50px)":"translateX(-50px)";
+
+    setTimeout(()=>{
+      index=newIndex;
+      img.src=a.links[index];
+      counter.innerText=(index+1)+" / "+a.links.length;
+
+      img.style.transform="translateX(0)";
+      img.style.opacity=1;
+    },150);
+  }
 
   img.onclick=()=>{
-    index=(index+1)%a.links.length;
-    img.src=a.links[index];
+    change((index+1)%a.links.length,1);
   };
+
+  let startX=0;
+
+  img.addEventListener("touchstart",e=>{
+    startX=e.touches[0].clientX;
+  });
+
+  img.addEventListener("touchend",e=>{
+    let endX=e.changedTouches[0].clientX;
+
+    if(endX<startX-50){
+      change((index+1)%a.links.length,1);
+    }else if(endX>startX+50){
+      change((index-1+a.links.length)%a.links.length,-1);
+    }
+  });
+
 }
 
 </script>
