@@ -8,36 +8,72 @@
 <style>
 body{margin:0;background:#000;color:#fff;font-family:sans-serif}
 
-/* LOGIN */
+/* 🔐 LOGIN */
 #login{
 height:100vh;display:flex;flex-direction:column;
-justify-content:center;align-items:center;gap:10px;
+justify-content:center;align-items:center;gap:12px;
 }
-.title{color:#f5c518;font-size:28px;font-weight:bold}
-.code{font-size:40px;color:#f5c518;cursor:pointer}
+.title{font-size:28px;color:#f5c518;font-weight:bold}
+.code{font-size:42px;color:#f5c518;cursor:pointer}
 .box{width:260px;padding:10px;border-radius:10px;text-align:center}
 .yellow{background:#f5c518;color:#000;font-weight:bold}
 .dark{background:#111;color:#fff;border:none}
 
-/* APP */
+/* 📱 APP */
 #app{display:none}
 
 .top{display:flex;justify-content:space-between;padding:10px;background:#111}
-.contact{display:block;background:#f5c518;color:#000;text-align:center;padding:10px;font-weight:bold;text-decoration:none}
 
-.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px}
+.contact{
+display:block;background:#f5c518;color:#000;
+text-align:center;padding:10px;font-weight:bold;text-decoration:none;
+}
 
-.card{background:#111;border-radius:12px;overflow:hidden}
-.card img{width:100%;height:140px;object-fit:cover}
+/* 📦 GRID */
+.grid{
+display:grid;
+grid-template-columns:repeat(2,1fr);
+gap:10px;
+padding:10px;
+}
 
-/* VIEWER */
-.viewer{position:fixed;inset:0;background:#000;z-index:9999}
-.viewer img{max-width:100%;max-height:85vh;margin:auto;display:block;transition:.25s}
+.card{
+background:#111;
+border-radius:12px;
+overflow:hidden;
+cursor:pointer;
+}
+
+.card img{
+width:100%;
+height:140px;
+object-fit:cover;
+}
+
+/* 🖼 VIEWER */
+.viewer{
+position:fixed;
+inset:0;
+background:#000;
+z-index:9999;
+display:flex;
+flex-direction:column;
+align-items:center;
+justify-content:center;
+}
+
+.viewer img{
+max-width:100%;
+max-height:80vh;
+border-radius:10px;
+transition:.25s;
+}
 </style>
 </head>
 
 <body>
 
+<!-- 🔐 LOGIN -->
 <div id="login">
   <div class="title">حصريات حسو</div>
   <div class="code" onclick="copy()">1234</div>
@@ -46,6 +82,7 @@ justify-content:center;align-items:center;gap:10px;
   <button class="box yellow" onclick="enter()">دخول</button>
 </div>
 
+<!-- 📱 APP -->
 <div id="app">
 
 <div class="top">
@@ -58,6 +95,7 @@ justify-content:center;align-items:center;gap:10px;
 </a>
 
 <div id="count" style="padding:10px">تحميل...</div>
+
 <div class="grid" id="grid"></div>
 
 </div>
@@ -68,10 +106,12 @@ const API="https://script.google.com/macros/s/AKfycbxXHimt8YCbt4wUPves03ewIZdQZ0
 
 let data=[];
 
+/* نسخ */
 function copy(){
 navigator.clipboard.writeText("1234");
 }
 
+/* دخول */
 function enter(){
 if(code.value!=="1234") return;
 login.style.display="none";
@@ -79,55 +119,50 @@ app.style.display="block";
 load();
 }
 
-/* 🔥 تصليح الروابط */
-function fixLink(url){
-  if(!url) return "";
-
-  url=url.trim();
-
-  // إذا بدون https
-  if(url.startsWith("http")===false){
-    url="https://"+url;
-  }
-
-  return url;
-}
-
-/* تحميل */
+/* 🔥 تحميل ودمج الألبومات */
 async function load(){
 
 const res=await fetch(API+"?t="+Date.now());
-const json=await res.json();
+let json=await res.json();
 
-data=json.map(x=>{
+if(!Array.isArray(json)) json=[json];
 
-let links=String(x.C||"")
+let map={};
+
+json.forEach(x=>{
+
+let name=String(x.name || "بدون اسم");
+
+let links=String(x.video||"")
 .split(" - ")
-.map(e=>fixLink(e))
-.filter(e=>e.includes("http"));
+.map(e=>e.trim())
+.filter(e=>e.startsWith("http"));
 
-return{
-name:x.B || "بدون اسم",
-cover:links[0],
-links:links
-};
+if(!map[name]) map[name]=[];
+
+map[name].push(...links);
 
 });
 
+data=Object.keys(map).map(name=>({
+name,
+links:map[name],
+cover:map[name][0]
+}));
+
 count.innerText=data.length+" ألبوم";
+
 render();
 
 }
 
 /* عرض */
 function render(){
-
 grid.innerHTML=data.map((a,i)=>`
 <div class="card" onclick="openAlbum(${i})">
 <img src="${a.cover}" onerror="this.src='https://via.placeholder.com/300'">
 </div>
 `).join("");
-
 }
 
 /* فتح الألبوم */
@@ -145,7 +180,7 @@ v.innerHTML=`
 <div id="counter">1/${a.links.length}</div>
 </div>
 
-<img id="img" src="${a.links[0]}"
+<img id="img" src="${a.links[0]}" 
 onerror="this.src='https://via.placeholder.com/300'">
 `;
 
@@ -154,7 +189,7 @@ document.body.appendChild(v);
 let img=v.querySelector("#img");
 let counter=v.querySelector("#counter");
 
-/* تبديل */
+/* تغيير */
 function change(i2){
 img.style.opacity=0;
 setTimeout(()=>{
