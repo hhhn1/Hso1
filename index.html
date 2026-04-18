@@ -8,26 +8,55 @@
 <style>
 body{
   margin:0;
+  font-family:sans-serif;
   background:#000;
   color:#fff;
-  font-family:sans-serif;
 }
 
-/* login */
+/* 🔐 شاشة الرمز (مثل الأصل) */
 #login{
-  height:100vh;
+  min-height:100vh;
   display:flex;
   flex-direction:column;
-  justify-content:center;
   align-items:center;
-  gap:10px;
+  justify-content:center;
+  gap:12px;
 }
 
-.title{color:#f5c518;font-size:30px;font-weight:bold}
-input{padding:10px;width:250px;text-align:center;border-radius:10px;border:none}
-button{padding:10px;width:250px;border:none;border-radius:10px;background:#f5c518;font-weight:bold}
+.title{
+  font-size:28px;
+  font-weight:bold;
+  color:#f5c518;
+}
 
-/* app */
+.code{
+  font-size:40px;
+  font-weight:bold;
+  color:#f5c518;
+  cursor:pointer;
+}
+
+.box{
+  width:260px;
+  padding:10px;
+  border-radius:10px;
+  border:none;
+  text-align:center;
+}
+
+.yellow{
+  background:#f5c518;
+  color:#000;
+  font-weight:bold;
+  cursor:pointer;
+}
+
+.dark{
+  background:#111;
+  color:#fff;
+}
+
+/* 📱 التطبيق */
 #app{display:none}
 
 .top{
@@ -47,7 +76,7 @@ button{padding:10px;width:250px;border:none;border-radius:10px;background:#f5c51
   text-decoration:none;
 }
 
-/* albums grid */
+/* 📦 ألبومات */
 .grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -68,7 +97,7 @@ button{padding:10px;width:250px;border:none;border-radius:10px;background:#f5c51
   object-fit:cover;
 }
 
-/* viewer */
+/* 🖼 viewer */
 .viewer{
   position:fixed;
   inset:0;
@@ -91,15 +120,22 @@ button{padding:10px;width:250px;border:none;border-radius:10px;background:#f5c51
 
 <body>
 
-<!-- LOGIN -->
+<!-- 🔐 LOGIN -->
 <div id="login">
+
   <div class="title">حصريات حسو</div>
-  <h1 onclick="copy()">1234</h1>
-  <input id="code" placeholder="كلمة المرور">
-  <button onclick="enter()">دخول</button>
+
+  <div class="code" onclick="copy()">1234</div>
+
+  <div class="box yellow" onclick="copy()">نسخ الرمز</div>
+
+  <input id="code" class="box dark" placeholder="كلمة المرور">
+
+  <button class="box yellow" onclick="enter()">دخول</button>
+
 </div>
 
-<!-- APP -->
+<!-- 📱 APP -->
 <div id="app">
 
 <div class="top">
@@ -112,6 +148,7 @@ button{padding:10px;width:250px;border:none;border-radius:10px;background:#f5c51
 </a>
 
 <div id="count" style="padding:10px;">جاري التحميل...</div>
+
 <div class="grid" id="grid"></div>
 
 </div>
@@ -122,55 +159,53 @@ const API="https://script.google.com/macros/s/AKfycbxXHimt8YCbt4wUPves03ewIZdQZ0
 
 let data=[];
 
+/* 🔐 نسخ */
 function copy(){
   navigator.clipboard.writeText("1234");
 }
 
+/* 🔓 دخول */
 function enter(){
   if(code.value!=="1234") return;
+
   login.style.display="none";
   app.style.display="block";
+
   load();
 }
 
-/* 🔥 تحميل الألبومات */
+/* 📦 تحميل */
 async function load(){
-  try{
-    const res=await fetch(API+"?t="+Date.now(),{cache:"no-store"});
-    const json=await res.json();
 
-    if(!Array.isArray(json)){
-      count.innerText="❌ لا توجد بيانات";
-      return;
-    }
+  const res=await fetch(API+"?t="+Date.now(),{cache:"no-store"});
+  const json=await res.json();
 
-    data=json.map(x=>{
-
-      let name=x.B || "بدون اسم";
-
-      let raw=x.C || "";
-
-      let links=String(raw)
-        .split(" - ")
-        .map(e=>e.trim())
-        .filter(e=>e.startsWith("http"));
-
-      return{
-        name,
-        cover:links[0],
-        links
-      };
-    });
-
-    count.innerText=data.length+" ألبوم";
-    render();
-
-  }catch(e){
-    count.innerText="❌ خطأ تحميل";
+  if(!Array.isArray(json)){
+    count.innerText="❌ لا توجد بيانات";
+    return;
   }
+
+  data=json.map(x=>{
+
+    let name=x.B || "بدون اسم";
+
+    let links=String(x.C||"")
+      .split(" - ")
+      .map(e=>e.trim())
+      .filter(e=>e.startsWith("http"));
+
+    return{
+      name,
+      cover:links[0],
+      links
+    };
+  });
+
+  count.innerText=data.length+" ألبوم";
+  render();
 }
 
-/* عرض الألبومات */
+/* 📦 عرض */
 function render(){
   grid.innerHTML=data.map((a,i)=>`
     <div class="card" onclick="openAlbum(${i})">
@@ -179,7 +214,7 @@ function render(){
   `).join("");
 }
 
-/* 🔥 فتح الألبوم */
+/* 🖼 فتح الألبوم */
 function openAlbum(i){
 
   let a=data[i];
