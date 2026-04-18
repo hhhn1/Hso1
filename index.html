@@ -5,51 +5,30 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>حصريات حسو</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-
 <style>
 body{
   margin:0;
-  font-family:'Cairo',sans-serif;
   background:#000;
   color:#fff;
+  font-family:sans-serif;
 }
 
-/* LOGIN */
+/* login */
 #login{
-  min-height:100vh;
+  height:100vh;
   display:flex;
   flex-direction:column;
   justify-content:center;
   align-items:center;
-  gap:12px;
+  gap:10px;
 }
 
-.title{font-size:30px;font-weight:900;color:#f5c518;}
-.code{font-size:50px;font-weight:900;color:#f5c518;cursor:pointer;}
+.title{color:#f5c518;font-size:30px;font-weight:bold}
+input{padding:10px;width:250px;text-align:center;border-radius:10px;border:none}
+button{padding:10px;width:250px;border:none;border-radius:10px;background:#f5c518;font-weight:bold}
 
-.input{
-  width:300px;
-  padding:12px;
-  text-align:center;
-  border-radius:10px;
-  border:none;
-  background:#111;
-  color:#fff;
-}
-
-.btn{
-  width:300px;
-  padding:12px;
-  border:none;
-  border-radius:10px;
-  font-weight:900;
-  background:#f5c518;
-  color:#000;
-}
-
-/* APP */
-#app{display:none;}
+/* app */
+#app{display:none}
 
 .top{
   display:flex;
@@ -58,18 +37,17 @@ body{
   background:#111;
 }
 
-.online{color:#00ff66;}
-
 .contact{
   display:block;
   background:#f5c518;
   color:#000;
   text-align:center;
   padding:10px;
-  font-weight:900;
+  font-weight:bold;
   text-decoration:none;
 }
 
+/* albums grid */
 .grid{
   display:grid;
   grid-template-columns:repeat(2,1fr);
@@ -81,6 +59,7 @@ body{
   background:#111;
   border-radius:12px;
   overflow:hidden;
+  cursor:pointer;
 }
 
 .card img{
@@ -89,21 +68,23 @@ body{
   object-fit:cover;
 }
 
-/* VIEWER */
+/* viewer */
 .viewer{
   position:fixed;
   inset:0;
   background:#000;
-  display:flex;
-  flex-direction:column;
   z-index:9999;
+  overflow-y:auto;
+  padding-top:60px;
 }
 
 .viewer img{
-  margin:auto;
-  max-width:100%;
-  max-height:85vh;
-  transition:opacity .25s ease, transform .25s ease;
+  width:100%;
+  max-width:600px;
+  display:block;
+  margin:10px auto;
+  border-radius:10px;
+  transition:.25s;
 }
 </style>
 </head>
@@ -113,27 +94,25 @@ body{
 <!-- LOGIN -->
 <div id="login">
   <div class="title">حصريات حسو</div>
-  <div class="code" onclick="copy()">1234</div>
-  <button class="btn" onclick="copy()">نسخ</button>
-  <input id="code" class="input" placeholder="كلمة المرور">
-  <button class="btn" onclick="enter()">دخول</button>
+  <h1 onclick="copy()">1234</h1>
+  <input id="code" placeholder="كلمة المرور">
+  <button onclick="enter()">دخول</button>
 </div>
 
 <!-- APP -->
 <div id="app">
 
-  <div class="top">
-    <div class="online">🟢 متصل الآن</div>
-    <div>حصريات حسو</div>
-  </div>
+<div class="top">
+  <div>🟢 متصل</div>
+  <div>حصريات حسو</div>
+</div>
 
-  <a href="https://t.me/xxnnn8" target="_blank" class="contact">
-    للتواصل معنا @xxnnn8
-  </a>
+<a class="contact" href="https://t.me/xxnnn8" target="_blank">
+التواصل معنا @xxnnn8
+</a>
 
-  <div id="count" style="padding:10px;">جاري التحميل...</div>
-
-  <div class="grid" id="grid"></div>
+<div id="count" style="padding:10px;">جاري التحميل...</div>
+<div class="grid" id="grid"></div>
 
 </div>
 
@@ -148,57 +127,50 @@ function copy(){
 }
 
 function enter(){
-  if(document.getElementById("code").value!=="1234") return;
+  if(code.value!=="1234") return;
   login.style.display="none";
   app.style.display="block";
   load();
 }
 
-/* 🔥 تحميل مضبوط B + C */
+/* 🔥 تحميل الألبومات */
 async function load(){
   try{
     const res=await fetch(API+"?t="+Date.now(),{cache:"no-store"});
-    const text=await res.text();
-
-    let json;
-    try{
-      json=JSON.parse(text);
-    }catch{
-      count.innerText="❌ خطأ API";
-      return;
-    }
+    const json=await res.json();
 
     if(!Array.isArray(json)){
-      count.innerText="❌ بيانات غير صحيحة";
+      count.innerText="❌ لا توجد بيانات";
       return;
     }
 
     data=json.map(x=>{
 
-      let name = x.B || x.name || x.Name || "بدون اسم";
+      let name=x.B || "بدون اسم";
 
-      let raw = x.C || x.video || x.Video || "";
+      let raw=x.C || "";
 
-      let links = String(raw)
+      let links=String(raw)
         .split(" - ")
         .map(e=>e.trim())
         .filter(e=>e.startsWith("http"));
 
       return{
-        name:name,
-        cover:links[0] || "https://via.placeholder.com/300",
-        links:links.length ? links : ["https://via.placeholder.com/300"]
+        name,
+        cover:links[0],
+        links
       };
     });
 
-    count.innerText = data.length + " ألبوم";
+    count.innerText=data.length+" ألبوم";
     render();
 
   }catch(e){
-    count.innerText="❌ فشل الاتصال";
+    count.innerText="❌ خطأ تحميل";
   }
 }
 
+/* عرض الألبومات */
 function render(){
   grid.innerHTML=data.map((a,i)=>`
     <div class="card" onclick="openAlbum(${i})">
@@ -207,7 +179,7 @@ function render(){
   `).join("");
 }
 
-/* 🚀 الألبوم المطور */
+/* 🔥 فتح الألبوم */
 function openAlbum(i){
 
   let a=data[i];
@@ -217,17 +189,14 @@ function openAlbum(i){
   v.className="viewer";
 
   v.innerHTML=`
-    <div style="position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;align-items:center;z-index:999;">
+    <div style="position:fixed;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;z-index:999;">
       
       <button onclick="this.closest('.viewer').remove()"
         style="background:#f5c518;color:#000;border:none;padding:8px 12px;border-radius:8px;font-weight:bold;">
         رجوع
       </button>
 
-      <div id="counter" style="color:#fff;font-weight:bold;">
-        1 / ${a.links.length}
-      </div>
-
+      <div id="counter">1 / ${a.links.length}</div>
     </div>
 
     <img id="img" src="${a.links[0]}">
@@ -244,12 +213,14 @@ function openAlbum(i){
     img.style.transform=dir>0?"translateX(50px)":"translateX(-50px)";
 
     setTimeout(()=>{
+
       index=newIndex;
       img.src=a.links[index];
       counter.innerText=(index+1)+" / "+a.links.length;
 
       img.style.transform="translateX(0)";
       img.style.opacity=1;
+
     },150);
   }
 
