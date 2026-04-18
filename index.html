@@ -6,136 +6,46 @@
 <title>حصريات حسو</title>
 
 <style>
-body{
-  margin:0;
-  font-family:sans-serif;
-  background:#000;
-  color:#fff;
-}
+body{margin:0;background:#000;color:#fff;font-family:sans-serif}
 
-/* 🔐 شاشة الرمز (مثل الأصل) */
+/* LOGIN */
 #login{
-  min-height:100vh;
-  display:flex;
-  flex-direction:column;
-  align-items:center;
-  justify-content:center;
-  gap:12px;
+height:100vh;display:flex;flex-direction:column;
+justify-content:center;align-items:center;gap:10px;
 }
+.title{color:#f5c518;font-size:28px;font-weight:bold}
+.code{font-size:40px;color:#f5c518;cursor:pointer}
+.box{width:260px;padding:10px;border-radius:10px;text-align:center}
+.yellow{background:#f5c518;color:#000;font-weight:bold}
+.dark{background:#111;color:#fff;border:none}
 
-.title{
-  font-size:28px;
-  font-weight:bold;
-  color:#f5c518;
-}
-
-.code{
-  font-size:40px;
-  font-weight:bold;
-  color:#f5c518;
-  cursor:pointer;
-}
-
-.box{
-  width:260px;
-  padding:10px;
-  border-radius:10px;
-  border:none;
-  text-align:center;
-}
-
-.yellow{
-  background:#f5c518;
-  color:#000;
-  font-weight:bold;
-  cursor:pointer;
-}
-
-.dark{
-  background:#111;
-  color:#fff;
-}
-
-/* 📱 التطبيق */
+/* APP */
 #app{display:none}
 
-.top{
-  display:flex;
-  justify-content:space-between;
-  padding:10px;
-  background:#111;
-}
+.top{display:flex;justify-content:space-between;padding:10px;background:#111}
+.contact{display:block;background:#f5c518;color:#000;text-align:center;padding:10px;font-weight:bold;text-decoration:none}
 
-.contact{
-  display:block;
-  background:#f5c518;
-  color:#000;
-  text-align:center;
-  padding:10px;
-  font-weight:bold;
-  text-decoration:none;
-}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;padding:10px}
 
-/* 📦 ألبومات */
-.grid{
-  display:grid;
-  grid-template-columns:repeat(2,1fr);
-  gap:10px;
-  padding:10px;
-}
+.card{background:#111;border-radius:12px;overflow:hidden}
+.card img{width:100%;height:140px;object-fit:cover}
 
-.card{
-  background:#111;
-  border-radius:12px;
-  overflow:hidden;
-  cursor:pointer;
-}
-
-.card img{
-  width:100%;
-  height:140px;
-  object-fit:cover;
-}
-
-/* 🖼 viewer */
-.viewer{
-  position:fixed;
-  inset:0;
-  background:#000;
-  z-index:9999;
-  overflow-y:auto;
-  padding-top:60px;
-}
-
-.viewer img{
-  width:100%;
-  max-width:600px;
-  display:block;
-  margin:10px auto;
-  border-radius:10px;
-  transition:.25s;
-}
+/* VIEWER */
+.viewer{position:fixed;inset:0;background:#000;z-index:9999}
+.viewer img{max-width:100%;max-height:85vh;margin:auto;display:block;transition:.25s}
 </style>
 </head>
 
 <body>
 
-<!-- 🔐 LOGIN -->
 <div id="login">
-
   <div class="title">حصريات حسو</div>
-
   <div class="code" onclick="copy()">1234</div>
-
-  <div class="box yellow" onclick="copy()">نسخ الرمز</div>
-
+  <div class="box yellow" onclick="copy()">نسخ</div>
   <input id="code" class="box dark" placeholder="كلمة المرور">
-
   <button class="box yellow" onclick="enter()">دخول</button>
-
 </div>
 
-<!-- 📱 APP -->
 <div id="app">
 
 <div class="top">
@@ -147,8 +57,7 @@ body{
 التواصل معنا @xxnnn8
 </a>
 
-<div id="count" style="padding:10px;">جاري التحميل...</div>
-
+<div id="count" style="padding:10px">تحميل...</div>
 <div class="grid" id="grid"></div>
 
 </div>
@@ -159,125 +68,117 @@ const API="https://script.google.com/macros/s/AKfycbxXHimt8YCbt4wUPves03ewIZdQZ0
 
 let data=[];
 
-/* 🔐 نسخ */
 function copy(){
-  navigator.clipboard.writeText("1234");
+navigator.clipboard.writeText("1234");
 }
 
-/* 🔓 دخول */
 function enter(){
-  if(code.value!=="1234") return;
-
-  login.style.display="none";
-  app.style.display="block";
-
-  load();
+if(code.value!=="1234") return;
+login.style.display="none";
+app.style.display="block";
+load();
 }
 
-/* 📦 تحميل */
+/* 🔥 تصليح الروابط */
+function fixLink(url){
+  if(!url) return "";
+
+  url=url.trim();
+
+  // إذا بدون https
+  if(url.startsWith("http")===false){
+    url="https://"+url;
+  }
+
+  return url;
+}
+
+/* تحميل */
 async function load(){
 
-  const res=await fetch(API+"?t="+Date.now(),{cache:"no-store"});
-  const json=await res.json();
+const res=await fetch(API+"?t="+Date.now());
+const json=await res.json();
 
-  if(!Array.isArray(json)){
-    count.innerText="❌ لا توجد بيانات";
-    return;
-  }
+data=json.map(x=>{
 
-  data=json.map(x=>{
+let links=String(x.C||"")
+.split(" - ")
+.map(e=>fixLink(e))
+.filter(e=>e.includes("http"));
 
-    let name=x.B || "بدون اسم";
+return{
+name:x.B || "بدون اسم",
+cover:links[0],
+links:links
+};
 
-    let links=String(x.C||"")
-      .split(" - ")
-      .map(e=>e.trim())
-      .filter(e=>e.startsWith("http"));
+});
 
-    return{
-      name,
-      cover:links[0],
-      links
-    };
-  });
+count.innerText=data.length+" ألبوم";
+render();
 
-  count.innerText=data.length+" ألبوم";
-  render();
 }
 
-/* 📦 عرض */
+/* عرض */
 function render(){
-  grid.innerHTML=data.map((a,i)=>`
-    <div class="card" onclick="openAlbum(${i})">
-      <img src="${a.cover}">
-    </div>
-  `).join("");
+
+grid.innerHTML=data.map((a,i)=>`
+<div class="card" onclick="openAlbum(${i})">
+<img src="${a.cover}" onerror="this.src='https://via.placeholder.com/300'">
+</div>
+`).join("");
+
 }
 
-/* 🖼 فتح الألبوم */
+/* فتح الألبوم */
 function openAlbum(i){
 
-  let a=data[i];
-  let index=0;
+let a=data[i];
+let index=0;
 
-  let v=document.createElement("div");
-  v.className="viewer";
+let v=document.createElement("div");
+v.className="viewer";
 
-  v.innerHTML=`
-    <div style="position:fixed;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;z-index:999;">
-      
-      <button onclick="this.closest('.viewer').remove()"
-        style="background:#f5c518;color:#000;border:none;padding:8px 12px;border-radius:8px;font-weight:bold;">
-        رجوع
-      </button>
+v.innerHTML=`
+<div style="position:absolute;top:10px;left:10px;right:10px;display:flex;justify-content:space-between;">
+<button onclick="this.parentElement.parentElement.remove()">رجوع</button>
+<div id="counter">1/${a.links.length}</div>
+</div>
 
-      <div id="counter">1 / ${a.links.length}</div>
-    </div>
+<img id="img" src="${a.links[0]}"
+onerror="this.src='https://via.placeholder.com/300'">
+`;
 
-    <img id="img" src="${a.links[0]}">
-  `;
+document.body.appendChild(v);
 
-  document.body.appendChild(v);
+let img=v.querySelector("#img");
+let counter=v.querySelector("#counter");
 
-  const img=v.querySelector("#img");
-  const counter=v.querySelector("#counter");
+/* تبديل */
+function change(i2){
+img.style.opacity=0;
+setTimeout(()=>{
+index=i2;
+img.src=a.links[index];
+counter.innerText=(index+1)+"/"+a.links.length;
+img.style.opacity=1;
+},150);
+}
 
-  function change(newIndex,dir){
+/* ضغط */
+img.onclick=()=>change((index+1)%a.links.length);
 
-    img.style.opacity=0;
-    img.style.transform=dir>0?"translateX(50px)":"translateX(-50px)";
+/* سحب */
+let start=0;
 
-    setTimeout(()=>{
+img.ontouchstart=e=>start=e.touches[0].clientX;
 
-      index=newIndex;
-      img.src=a.links[index];
-      counter.innerText=(index+1)+" / "+a.links.length;
+img.ontouchend=e=>{
+let end=e.changedTouches[0].clientX;
 
-      img.style.transform="translateX(0)";
-      img.style.opacity=1;
-
-    },150);
-  }
-
-  img.onclick=()=>{
-    change((index+1)%a.links.length,1);
-  };
-
-  let startX=0;
-
-  img.addEventListener("touchstart",e=>{
-    startX=e.touches[0].clientX;
-  });
-
-  img.addEventListener("touchend",e=>{
-    let endX=e.changedTouches[0].clientX;
-
-    if(endX<startX-50){
-      change((index+1)%a.links.length,1);
-    }else if(endX>startX+50){
-      change((index-1+a.links.length)%a.links.length,-1);
-    }
-  });
+if(end<start-50) change((index+1)%a.links.length);
+if(end>start+50) change((index-1+a.links.length)%a.links.length);
+};
 
 }
 
